@@ -28,6 +28,7 @@
                             <div class="floating-item">🧪</div>
                             <div class="floating-item">🛣️</div>
                             <div class="floating-item">📚</div>
+                            <div class="floating-item">🎮</div>
                         </div>
                     </div>
                 </div>
