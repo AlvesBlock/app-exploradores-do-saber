@@ -45,9 +45,14 @@
                     </div>
 
                     <div class="runner-road">
+                        <div class="road-edge-glow right"></div>
+
                         <div class="lane lane-left"></div>
                         <div class="lane lane-center"></div>
                         <div class="lane lane-right"></div>
+
+                        <div v-for="marker in gameState.roadMarkers" :key="marker.id" class="road-marker"
+                            :style="getRoadMarkerStyle(marker.depth)"></div>
 
                         <div v-for="entity in gameState.entities" :key="entity.id" class="runner-entity"
                             :class="entity.type" :style="getEntityStyle(entity.lane, entity.depth)">
@@ -299,6 +304,9 @@ const ROAD_PROJECTION = {
     topRightX: 785.51,
     bottomLeftX: 370.24,
     bottomRightX: 1164.09,
+    roadCenterX: 767.17,
+    roadHalfWidthFar: 18.35,
+    roadHalfWidthNear: 396.93,
     laneCount: 3
 } as const
 
@@ -346,6 +354,43 @@ function getEntityStyle(lane: LaneIndex, depth: number) {
         top: `${topPercent}%`,
         transform: `translate(-50%, -50%) scale(${scale})`,
         opacity: String(opacity)
+    }
+}
+
+function getRoadMarkerStyle(depth: number) {
+    const d = Math.min(Math.max(depth, 0), 1)
+
+    const {
+        canvasWidth,
+        canvasHeight,
+        horizonY,
+        bottomY,
+        roadCenterX,
+        roadHalfWidthFar,
+        roadHalfWidthNear
+    } = {
+        ...ROAD_PROJECTION,
+        roadCenterX: 767.17,
+        roadHalfWidthFar: 18.35,
+        roadHalfWidthNear: 396.93
+    }
+
+    const yPx = horizonY + (bottomY - horizonY) * d
+
+    const halfRoadWidth =
+        roadHalfWidthFar + (roadHalfWidthNear - roadHalfWidthFar) * d
+
+    const markerWidth = Math.max(4, halfRoadWidth * 0.1)
+    const markerHeight = 8 + d * 42
+    const opacity = 0.2 + d * 0.55
+
+    return {
+        left: `${(roadCenterX / canvasWidth) * 100}%`,
+        top: `${(yPx / canvasHeight) * 100}%`,
+        width: `${markerWidth}px`,
+        height: `${markerHeight}px`,
+        opacity: String(opacity),
+        transform: 'translate(-50%, -50%)'
     }
 }
 
@@ -661,17 +706,16 @@ function tuneVehicle() {
 }
 
 .runner-player {
-  position: absolute;
-  bottom: 17%;
-  font-size: 3.15rem;
-  transform: translate(-50%, 0);
-  transition:
-    left 0.18s ease,
-    transform 0.12s ease;
-  filter:
-    drop-shadow(0 10px 12px rgba(0, 0, 0, 0.24))
-    drop-shadow(0 0 10px rgba(255, 255, 255, 0.08));
-  z-index: 3;
+    position: absolute;
+    bottom: 17%;
+    font-size: 3.15rem;
+    transform: translate(-50%, 0);
+    transition:
+        left 0.18s ease,
+        transform 0.12s ease;
+    filter:
+        drop-shadow(0 10px 12px rgba(0, 0, 0, 0.24)) drop-shadow(0 0 10px rgba(255, 255, 255, 0.08));
+    z-index: 3;
 }
 
 .runner-stat {
@@ -703,5 +747,46 @@ function tuneVehicle() {
 .runner-helper {
     color: var(--kids-muted);
     font-weight: 600;
+}
+
+/* ANIMACAO DA PISTA */
+.road-marker {
+    position: absolute;
+    border-radius: 999px;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.92) 0%,
+            rgba(255, 255, 255, 0.72) 100%);
+    box-shadow:
+        0 0 10px rgba(255, 255, 255, 0.14),
+        0 2px 6px rgba(0, 0, 0, 0.08);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.road-edge-glow {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 12px;
+    pointer-events: none;
+    z-index: 1;
+    filter: blur(3px);
+    opacity: 0.45;
+}
+
+.road-edge-glow.left {
+    left: 0;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.04) 0%,
+            rgba(255, 255, 255, 0.18) 45%,
+            rgba(255, 255, 255, 0.08) 100%);
+}
+
+.road-edge-glow.right {
+    right: 0;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.04) 0%,
+            rgba(255, 255, 255, 0.18) 45%,
+            rgba(255, 255, 255, 0.08) 100%);
 }
 </style>

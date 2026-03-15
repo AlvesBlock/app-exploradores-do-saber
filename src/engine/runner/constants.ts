@@ -1,5 +1,13 @@
 import type { RunnerGameState } from '@/types/runner'
 
+
+function createInitialRoadMarkers() {
+  return Array.from({ length: 9 }, (_, index) => ({
+    id: `marker-${index + 1}`,
+    depth: index / 9
+  }))
+}
+
 export const RUNNER_DEFAULT_STATE: RunnerGameState = {
   status: 'idle',
   player: {
@@ -10,7 +18,7 @@ export const RUNNER_DEFAULT_STATE: RunnerGameState = {
     isInvulnerable: false,
     turboActive: false,
     turboCharge: 0,
-    turboTimeLeft: 0
+    turboTimeLeft: 0    
   },
   stats: {
     score: 0,
@@ -24,7 +32,8 @@ export const RUNNER_DEFAULT_STATE: RunnerGameState = {
     collectedCount: 0,
     phaseLevel: 1
   },
-  entities: []
+  entities: [],
+  roadMarkers: createInitialRoadMarkers(),
 }
 
 export const RUNNER_LANES = [0, 1, 2] as const

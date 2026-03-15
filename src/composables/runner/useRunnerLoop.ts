@@ -70,6 +70,20 @@ export function useRunnerLoop(
         )
     }
 
+    function updateRoadMarkers(deltaMs: number) {
+        const markerSpeedBase = 0.012
+        const turboBoost = gameState.player.turboActive ? 0.01 : 0
+        const movement = (deltaMs / 16.67) * (markerSpeedBase + gameState.stats.speed * 0.01 + turboBoost)
+
+        gameState.roadMarkers!.forEach((marker) => {
+            marker.depth += movement
+
+            if (marker.depth > 1.02) {
+                marker.depth = 0.02
+            }
+        })
+    }
+
     function processCollisions() {
         gameState.entities.forEach((entity: RunnerEntity) => {
             const sameLane = entity.lane === gameState.player.lane
@@ -112,6 +126,7 @@ export function useRunnerLoop(
         lastTime.value = now
 
         updateDifficulty()
+        updateRoadMarkers(deltaMs)
         updateTurbo(deltaMs)
 
         const speedFactor = gameState.stats.speed
@@ -227,6 +242,11 @@ export function useRunnerLoop(
         gameState.stats.phaseLevel = 1
 
         gameState.entities = []
+
+        gameState.roadMarkers = Array.from({ length: 9 }, (_, index) => ({
+            id: `marker-${index + 1}`,
+            depth: index / 9
+        }))
     }
 
     onBeforeUnmount(() => {

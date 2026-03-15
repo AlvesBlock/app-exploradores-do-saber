@@ -42,4 +42,9 @@ export interface RunnerGameState {
   player: RunnerPlayerState
   stats: RunnerStats
   entities: RunnerEntity[]
+  roadMarkers?: RunnerRoadMarker[]}
+
+export interface RunnerRoadMarker {
+  id: string
+  depth: number
 }
