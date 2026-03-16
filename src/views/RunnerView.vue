@@ -1042,7 +1042,7 @@ watch(
 }
 .runner-player {
   position: absolute;
-  bottom: clamp(28px, 10%, 88px);
+  bottom: clamp(48px, 15%, 188px);
   font-size: clamp(2.8rem, 8vw, 4rem);
   transform: translate(-50%, 0);
   transition-property: left, transform;

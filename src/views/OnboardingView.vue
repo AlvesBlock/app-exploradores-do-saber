@@ -1,51 +1,73 @@
 <template>
-    <div class="kids-page onboarding-page">
-        <div class="kids-container">
-            <div class="kids-card p-4 md:p-6">
-                <div class="text-center mb-5">
-                    <div class="text-5xl mb-3">✨</div>
-                    <h1 class="kids-title mb-2">Seu perfil de explorador</h1>
-                    <p class="kids-subtitle mb-0">
-                        Escolha seu nome e seu avatar para começar a aventura.
-                    </p>
-                </div>
-
-                <div class="grid">
-                    <div class="col-12">
-                        <label class="block mb-2 font-semibold">Seu nome ou apelido</label>
-                        <InputText v-model="playerName" class="w-full" size="large"
-                            placeholder="Ex: Esther, Davi, Sofia..." maxlength="20" />
-                    </div>
-
-                    <div class="col-12 mt-4">
-                        <label class="block mb-3 font-semibold">Escolha seu avatar</label>
-
-                        <div class="grid">
-                            <div v-for="option in avatarOptions" :key="option.value" class="col-6 md:col-3">
-                                <button type="button" class="avatar-option w-full"
-                                    :class="{ selected: selectedAvatar === option.value }"
-                                    @click="selectedAvatar = option.value">
-                                    <div class="avatar-emoji mb-2">{{ option.emoji }}</div>
-                                    <div class="font-semibold">{{ option.label }}</div>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 mt-5">
-                        <div class="flex flex-column md:flex-row gap-3 justify-content-center">
-                            <Button label="Voltar" icon="pi pi-arrow-left" severity="secondary" outlined
-                                @click="goHome" />
-                            <Button label="Salvar e entrar" icon="pi pi-check" :disabled="!canContinue"
-                                @click="saveProfile" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="kids-page onboarding-page">
+    <div class="kids-container onboarding-shell">
+      <section class="kids-card onboarding-intro">
+        <div class="intro-copy">
+          <div class="kids-eyebrow">🪄 Perfil de explorador</div>
+          <h1 class="kids-title">Crie um perfil acolhedor e pronto para brincar</h1>
+          <p class="kids-subtitle">
+            Escolha um nome curtinho, um avatar que combine com a sua energia e comece a jornada.
+          </p>
         </div>
 
-        <Toast />
+        <div class="preview-card" :style="{ '--avatar-accent': selectedAvatarMeta.accentColor }">
+          <span class="preview-emoji">{{ selectedAvatarMeta.emoji }}</span>
+          <strong>{{ playerNamePreview }}</strong>
+          <small>{{ selectedAvatarMeta.description }}</small>
+        </div>
+      </section>
+
+      <section class="kids-card onboarding-form">
+        <div class="form-field">
+          <label for="player-name" class="field-label">Como voce quer ser chamado?</label>
+          <InputText
+            id="player-name"
+            v-model="playerName"
+            class="w-full"
+            size="large"
+            placeholder="Ex: Bia, Caio, Sol..."
+            maxlength="20"
+          />
+          <small class="field-help">Use um nome curto para ficar facil de ler no app.</small>
+        </div>
+
+        <div class="form-field">
+          <div class="field-header">
+            <label class="field-label">Escolha seu avatar</label>
+            <span class="kids-chip neutral">6 opcoes inclusivas</span>
+          </div>
+
+          <div class="avatar-grid">
+            <AvatarOptionCard
+              v-for="option in avatarOptions"
+              :key="option.value"
+              :option="option"
+              :selected="selectedAvatar === option.value"
+              @click="selectAvatar(option.value)"
+            />
+          </div>
+        </div>
+
+        <div class="onboarding-actions">
+          <Button
+            label="Voltar"
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            outlined
+            @click="goHome"
+          />
+          <Button
+            label="Salvar e entrar"
+            icon="pi pi-check"
+            :disabled="!canContinue"
+            @click="saveProfile"
+          />
+        </div>
+      </section>
     </div>
+
+    <Toast />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -56,6 +78,8 @@ import InputText from 'primevue/inputtext'
 import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
 
+import AvatarOptionCard from '@/components/onboarding/AvatarOptionCard.vue'
+import { avatarOptions, getAvatarMeta } from '@/data/avatars/avatarOptions.data'
 import { playerProfileService } from '@/services/playerProfile.service'
 import type { AvatarOption } from '@/types/player'
 
@@ -63,82 +87,149 @@ const router = useRouter()
 const toast = useToast()
 
 const playerName = ref('')
-const selectedAvatar = ref<AvatarOption | null>(null)
+const selectedAvatar = ref<AvatarOption>('mascote-coelho')
 
-const avatarOptions: Array<{ value: AvatarOption; label: string; emoji: string }> = [
-    { value: 'coelho', label: 'Coelho', emoji: '🐰' },
-    { value: 'cientista', label: 'Cientista', emoji: '🧪' },
-    { value: 'menino', label: 'Menino', emoji: '🧒' },
-    { value: 'menina', label: 'Menina', emoji: '👧' }
-]
-
-const canContinue = computed(() => {
-    return playerName.value.trim().length >= 2 && !!selectedAvatar.value
-})
+const canContinue = computed(() => playerName.value.trim().length >= 2)
+const selectedAvatarMeta = computed(() => getAvatarMeta(selectedAvatar.value))
+const playerNamePreview = computed(() => playerName.value.trim() || 'Seu explorador')
 
 function goHome() {
-    router.push('/')
+  router.push('/')
+}
+
+function selectAvatar(avatar: AvatarOption) {
+  selectedAvatar.value = avatar
 }
 
 function saveProfile() {
-    if (!canContinue.value || !selectedAvatar.value) {
-        toast.add({
-            severity: 'warn',
-            summary: 'Falta um passo',
-            detail: 'Digite seu nome e escolha um avatar.',
-            life: 2500
-        })
-        return
-    }
-
-    playerProfileService.save({
-        name: playerName.value.trim(),
-        avatar: selectedAvatar.value,
-        stars: 0
-    })
-
+  if (!canContinue.value) {
     toast.add({
-        severity: 'success',
-        summary: 'Perfil salvo!',
-        detail: 'Tudo pronto para começar a aventura.',
-        life: 2200
+      severity: 'warn',
+      summary: 'Falta um passo',
+      detail: 'Digite um nome com pelo menos 2 letras para continuar.',
+      life: 2500
     })
+    return
+  }
 
-    setTimeout(() => {
-        router.push('/hub')
-    }, 500)
+  playerProfileService.save({
+    name: playerName.value.trim(),
+    avatar: selectedAvatar.value,
+    stars: 0
+  })
+
+  toast.add({
+    severity: 'success',
+    summary: 'Perfil salvo!',
+    detail: 'Tudo pronto para comecar a trilha dos exploradores.',
+    life: 2200
+  })
+
+  window.setTimeout(() => {
+    router.push('/hub')
+  }, 450)
 }
 </script>
 
 <style scoped>
-.onboarding-page {
-    display: flex;
-    align-items: center;
+.onboarding-shell {
+  display: grid;
+  gap: 24px;
 }
 
-.avatar-option {
-    border: 3px solid transparent;
-    border-radius: 24px;
-    padding: 18px 12px;
-    background: #fff;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-    cursor: pointer;
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        border-color 0.2s ease;
+.onboarding-intro,
+.onboarding-form {
+  padding: 24px;
 }
 
-.avatar-option:hover {
-    transform: translateY(-2px);
+.onboarding-intro {
+  display: grid;
+  gap: 18px;
 }
 
-.avatar-option.selected {
-    border-color: var(--kids-primary);
-    box-shadow: 0 12px 24px rgba(108, 99, 255, 0.18);
+.intro-copy {
+  display: grid;
+  gap: 14px;
 }
 
-.avatar-emoji {
-    font-size: 3rem;
+.preview-card {
+  border-radius: 28px;
+  padding: 22px;
+  display: grid;
+  gap: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.92) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.preview-emoji {
+  width: 72px;
+  height: 72px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  font-size: 2.4rem;
+  background: color-mix(in srgb, var(--avatar-accent) 18%, white);
+}
+
+.preview-card strong {
+  font-size: 1.2rem;
+}
+
+.preview-card small,
+.field-help {
+  color: var(--kids-muted);
+  line-height: 1.45;
+}
+
+.onboarding-form {
+  display: grid;
+  gap: 24px;
+}
+
+.form-field {
+  display: grid;
+  gap: 12px;
+}
+
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.field-label {
+  font-weight: 900;
+  color: #163047;
+}
+
+.avatar-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.onboarding-actions {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 760px) {
+  .avatar-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .onboarding-actions {
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    justify-content: end;
+  }
+}
+
+@media (min-width: 1100px) {
+  .onboarding-shell {
+    grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.05fr);
+    align-items: start;
+  }
 }
 </style>
+

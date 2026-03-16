@@ -5,7 +5,7 @@ const STORAGE_KEY = 'exploradores-pet-state'
 
 function defaultPetState(): PetState {
   return {
-    name: 'Felício',
+    name: 'Felicio',
     emoji: '🐰',
     happiness: 70,
     energy: 70,
@@ -37,17 +37,11 @@ export const petService = {
   },
 
   feedWithStars() {
-    const profile = playerProfileService.get()
     const pet = this.get()
 
-    if (!profile || profile.stars < 1) {
-      return { ok: false, message: 'Você precisa de pelo menos 1 estrela para alimentar o pet.' }
+    if (!playerProfileService.spendStars(1)) {
+      return { ok: false, message: 'Voce precisa de pelo menos 1 estrela para alimentar o pet.' }
     }
-
-    playerProfileService.save({
-      ...profile,
-      stars: profile.stars - 1
-    })
 
     const nextPet: PetState = {
       ...pet,
@@ -91,3 +85,4 @@ export const petService = {
     this.save(defaultPetState())
   }
 }
+

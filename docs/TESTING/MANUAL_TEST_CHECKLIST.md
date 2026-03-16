@@ -2,30 +2,64 @@
 
 ## Preparacao
 
-- [ ] Executar `npm install`.
-- [ ] Executar `npm run dev`.
+- [ ] Executar `npm install`
+- [ ] Executar `npm run dev`
+- [ ] Limpar `localStorage` para validar onboarding do zero
 
-## Fluxo basico
+## Jornada principal
 
-- [ ] Acessar `/` e verificar navegacao para o Hub.
-- [ ] Clicar em "Modo Arcade" e iniciar o Runner.
-- [ ] Verificar HUD carregado (vidas, moedas, progresso).
+- [ ] Acessar `/`
+- [ ] Validar landing mobile-first com CTA principal visivel
+- [ ] Navegar para `/onboarding`
+- [ ] Criar perfil com nome e avatar
+- [ ] Confirmar redirecionamento automatico para o hub
 
-## Gameplay
+## Hub
 
-- [ ] Mover para esquerda/direita e verificar resposta.
-- [ ] Coletar objetos e verificar aumento de moedas.
-- [ ] Colidir e verificar perda de vida.
-- [ ] Ativar escudo e verificar efeito.
-- [ ] Validar vitoria (meta alcancada) e derrota (vidas/time).
+- [ ] Verificar avatar, estrelas totais e resumo de progresso
+- [ ] Confirmar primeiro modulo desbloqueado e demais bloqueados
+- [ ] Validar cards dos modulos em viewport mobile portrait
+- [ ] Abrir pet, trocar perfil e retornar ao hub sem perder estado
 
-## UI
+## Quiz de modulo
 
-- [ ] Overlay de inicio aparece corretamente.
-- [ ] Overlay de pausa aparece e permite retomar.
-- [ ] Overlay de fim de round mostra mensagem adequada.
+- [ ] Abrir um modulo desbloqueado
+- [ ] Ver tela de introducao com dia atual e CTA claro
+- [ ] Iniciar sessao e responder uma pergunta correta
+- [ ] Validar audio curto de acerto
+- [ ] Responder uma pergunta errada
+- [ ] Validar audio curto de erro e feedback inline
+- [ ] Concluir a sessao com pelo menos 75 por cento de acerto
+- [ ] Confirmar subida de dia
+- [ ] Reabrir modulo e validar retomada no dia seguinte
+- [ ] Concluir um modulo inteiro e validar:
+  - [ ] confete
+  - [ ] audio de celebracao
+  - [ ] estrelas persistidas
+  - [ ] desbloqueio do proximo modulo
 
-## Audio
+## Persistencia
 
-- [ ] Efeitos de coleta e colisao tocam.
-- [ ] Verificar que o audio nao impede a execucao.
+- [ ] Recarregar a pagina no meio de uma sessao e verificar retomada segura
+- [ ] Fechar e abrir o app com progresso salvo no hub
+- [ ] Verificar que o pet usa as estrelas persistidas
+
+## Pet
+
+- [ ] Abrir `/pet`
+- [ ] Dar lanche quando houver estrela suficiente
+- [ ] Validar desconto de estrela no perfil
+- [ ] Brincar e descansar atualizando felicidade e energia
+
+## Responsividade e acessibilidade
+
+- [ ] Validar Home, Onboarding, Hub, Modulo e Pet em viewport pequena
+- [ ] Verificar botoes com area de toque confortavel
+- [ ] Verificar contraste de textos e estados de feedback
+- [ ] Verificar leitura clara sem blocos longos demais
+
+## Runner
+
+- [ ] Garantir que o acesso ao Runner continua disponivel pelo hub
+- [ ] Validar que a refatoracao do app principal nao removeu o modulo arcade
+

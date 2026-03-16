@@ -74,6 +74,7 @@ export interface ModuleSessionSummary {
   advancedDay: boolean
   nextDay: number
   completedModule: boolean
+  firstCompletion: boolean
   unlockedModuleId: ModuleId | null
   completedAt: string
 }
@@ -96,4 +97,3 @@ export interface ModuleProgress {
   lastSessionSummary: ModuleSessionSummary | null
   completedAt: string | null
 }
-

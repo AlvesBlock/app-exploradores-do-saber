@@ -12,7 +12,7 @@ Bem-vindo à documentação do _Exploradores do Saber_ — um aplicativo educati
 2. **`ARCHITECTURE.md`** – layout arquitetural detalhado do código e das responsabilidades.
 3. **`AI_DEV_WORKFLOW.md`** – fluxo obrigatório para qualquer trabalho orientado por IA.
 4. **`GAME/`** – documentação de produto e técnica do jogo (principalmente Runner).
-5. **`FEATURES/`** – templates para novas features, plano de implementação e logs.
+5. **`FEATURES/`** – templates para novas features, plano de implementação, logs e docs de features como `QUIZ_SYSTEM.md`.
 6. **`DECISIONS/`** – registro de decisões arquiteturais (ADR).
 7. **`TESTING/`** – plano de testes manual e de regressão.
 

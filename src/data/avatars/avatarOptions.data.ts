@@ -63,6 +63,5 @@ export function normalizeAvatarOption(value: string | null | undefined): AvatarO
 
 export function getAvatarMeta(avatar: AvatarOption | null | undefined): AvatarMeta {
   const normalized = normalizeAvatarOption(avatar)
-  return avatarOptions.find((option) => option.value === normalized) ?? avatarOptions[0]
+  return avatarOptions.find((option) => option.value === normalized) ?? avatarOptions[0]!
 }
-

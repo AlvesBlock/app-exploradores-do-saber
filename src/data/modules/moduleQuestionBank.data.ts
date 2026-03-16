@@ -1036,5 +1036,157 @@ export const moduleQuestionBank: ModuleQuestion[] = [
     successMessage: 'Perfeito! Essa frase faz sentido.',
     errorMessage: 'Escolha a frase em que as palavras combinam.',
     explanation: 'Frases com sentido mostram a funcao real das palavras.'
+  }),
+  question({
+    moduleId: 'language',
+    day: 3,
+    suffix: 'pontuacao-pergunta',
+    emoji: '❓',
+    difficulty: 'core',
+    title: 'Sinal certo',
+    prompt: 'Qual sinal usamos no final de uma pergunta?',
+    tip: 'Pense em quando queremos saber algo.',
+    options: [
+      { label: '?', value: '?', emoji: '❓' },
+      { label: '!', value: '!', emoji: '❗' },
+      { label: '.', value: '.', emoji: '⚪' }
+    ],
+    correctAnswer: '?',
+    successMessage: 'Boa! Perguntas terminam com ponto de interrogacao.',
+    errorMessage: 'Qual sinal aparece quando perguntamos algo?',
+    explanation: 'A pontuacao ajuda a entender a intencao da frase.'
+  }),
+  question({
+    moduleId: 'language',
+    day: 3,
+    suffix: 'ordem-frase',
+    emoji: '🧩',
+    difficulty: 'challenge',
+    title: 'Organizando a frase',
+    prompt: 'Qual ordem monta uma frase correta?',
+    tip: 'Comece por quem faz a acao.',
+    options: [
+      { label: 'A menina leu o livro.', value: 'certa', emoji: '📚' },
+      { label: 'Livro a leu menina o.', value: 'errada1', emoji: '🔀' },
+      { label: 'Leu o a livro menina.', value: 'errada2', emoji: '🌀' }
+    ],
+    correctAnswer: 'certa',
+    successMessage: 'Muito bem! Essa frase esta organizada.',
+    errorMessage: 'Observe qual frase esta na ordem natural da leitura.',
+    explanation: 'A ordem das palavras ajuda a dar sentido.'
+  }),
+  question({
+    moduleId: 'language',
+    day: 3,
+    suffix: 'palavra-oposta',
+    emoji: '↔️',
+    difficulty: 'core',
+    title: 'Palavra contraria',
+    prompt: 'Qual e a palavra oposta de "grande"?',
+    tip: 'Pense no contrario.',
+    options: [
+      { label: 'Pequeno', value: 'pequeno', emoji: '🪁' },
+      { label: 'Pesado', value: 'pesado', emoji: '🏋️' },
+      { label: 'Redondo', value: 'redondo', emoji: '⚽' }
+    ],
+    correctAnswer: 'pequeno',
+    successMessage: 'Isso! Pequeno e o contrario de grande.',
+    errorMessage: 'Procure a palavra de sentido oposto.',
+    explanation: 'Relacionar palavras ajuda na compreensao.'
+  }),
+  question({
+    moduleId: 'language',
+    day: 4,
+    suffix: 'plural-flor',
+    emoji: '🌸',
+    difficulty: 'core',
+    title: 'Uma ou muitas?',
+    prompt: 'Qual e o plural de "flor"?',
+    tip: 'Pense em varias flores juntas.',
+    options: [
+      { label: 'Flores', value: 'flores', emoji: '🌸' },
+      { label: 'Floras', value: 'floras', emoji: '🌺' },
+      { label: 'Floris', value: 'floris', emoji: '🌼' }
+    ],
+    correctAnswer: 'flores',
+    successMessage: 'Boa! O plural correto e flores.',
+    errorMessage: 'Procure a forma usada para muitas flores.',
+    explanation: 'O plural muda a palavra para indicar quantidade maior que um.'
+  }),
+  question({
+    moduleId: 'language',
+    day: 4,
+    suffix: 'leitura-bilhete',
+    emoji: '💌',
+    difficulty: 'challenge',
+    title: 'Entendendo o bilhete',
+    prompt: 'Se o bilhete diz "Leve o caderno amanha", o que voce precisa fazer?',
+    tip: 'Procure a acao pedida no bilhete.',
+    options: [
+      { label: 'Levar o caderno no dia seguinte', value: 'caderno', emoji: '📒' },
+      { label: 'Guardar o caderno para sempre', value: 'guardar', emoji: '🧺' },
+      { label: 'Emprestar o caderno ao cachorro', value: 'cachorro', emoji: '🐶' }
+    ],
+    correctAnswer: 'caderno',
+    successMessage: 'Perfeito! O bilhete pede para levar o caderno amanha.',
+    errorMessage: 'Leia novamente o pedido do bilhete.',
+    explanation: 'Ler e entender instrucoes e parte da rotina escolar.'
+  }),
+  question({
+    moduleId: 'language',
+    day: 4,
+    suffix: 'emoji-sentimento',
+    emoji: '😊',
+    difficulty: 'warmup',
+    title: 'Como a frase soa?',
+    prompt: 'A frase "Consegui!" combina mais com qual sentimento?',
+    tip: 'Pense em algo alegre.',
+    options: [
+      { label: 'Felicidade', value: 'felicidade', emoji: '😊' },
+      { label: 'Sono', value: 'sono', emoji: '😴' },
+      { label: 'Frio', value: 'frio', emoji: '🥶' }
+    ],
+    correctAnswer: 'felicidade',
+    successMessage: 'Isso! A frase mostra alegria pela conquista.',
+    errorMessage: 'Qual sentimento combina com uma conquista?',
+    explanation: 'As palavras tambem transmitem emocao.'
+  }),
+  question({
+    moduleId: 'language',
+    day: 5,
+    suffix: 'desafio-titulo',
+    emoji: '📖',
+    difficulty: 'challenge',
+    title: 'Titulo de historia',
+    prompt: 'Qual titulo combina melhor com uma historia sobre uma tartaruga veloz?',
+    tip: 'Escolha um titulo ligado ao tema.',
+    options: [
+      { label: 'A tartaruga que queria correr', value: 'tartaruga', emoji: '🐢' },
+      { label: 'A panela do espaco vazio', value: 'panela', emoji: '🍲' },
+      { label: 'As meias da montanha azul', value: 'meias', emoji: '🧦' }
+    ],
+    correctAnswer: 'tartaruga',
+    successMessage: 'Boa! O titulo combina com o assunto da historia.',
+    errorMessage: 'Procure o titulo que conversa com a personagem.',
+    explanation: 'Titulos ajudam a antecipar o assunto do texto.'
+  }),
+  question({
+    moduleId: 'language',
+    day: 5,
+    suffix: 'desafio-recado',
+    emoji: '📣',
+    difficulty: 'challenge',
+    title: 'Lendo o recado',
+    prompt: 'Um recado diz: "Nao esquecer a garrafinha". O que deve ser levado?',
+    tip: 'Leia o objeto citado no recado.',
+    options: [
+      { label: 'A garrafinha', value: 'garrafinha', emoji: '🧴' },
+      { label: 'Um travesseiro', value: 'travesseiro', emoji: '🛏️' },
+      { label: 'Um guarda-chuva', value: 'guarda-chuva', emoji: '☂️' }
+    ],
+    correctAnswer: 'garrafinha',
+    successMessage: 'Muito bem! O recado fala da garrafinha.',
+    errorMessage: 'Procure o objeto citado no recado.',
+    explanation: 'Ler recados ajuda a seguir combinados e instrucoes.'
   })
 ]

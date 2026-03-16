@@ -1,16 +1,22 @@
 :root {
-  --kids-bg: #fdf6ec;
-  --kids-surface: #ffffff;
-  --kids-primary: #6c63ff;
-  --kids-secondary: #ffb84d;
-  --kids-success: #59c36a;
-  --kids-danger: #ff6b6b;
-  --kids-text: #2f2f3a;
-  --kids-muted: #7a7a8c;
-
-  --border-round-xl: 24px;
-  --border-round-lg: 18px;
-  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --kids-bg: #eff8ff;
+  --kids-bg-secondary: #fff7ed;
+  --kids-surface: rgba(255, 255, 255, 0.92);
+  --kids-surface-strong: #ffffff;
+  --kids-primary: #2563eb;
+  --kids-secondary: #f97316;
+  --kids-accent: #ec4899;
+  --kids-success: #10b981;
+  --kids-danger: #ef4444;
+  --kids-warning: #f59e0b;
+  --kids-text: #163047;
+  --kids-muted: #607086;
+  --kids-border: rgba(148, 163, 184, 0.22);
+  --kids-shadow-soft: 0 18px 42px rgba(15, 23, 42, 0.1);
+  --kids-shadow-float: 0 24px 52px rgba(15, 23, 42, 0.14);
+  --border-round-xl: 28px;
+  --border-round-lg: 22px;
+  --border-round-md: 18px;
 }
 
 * {
@@ -23,13 +29,23 @@ body,
   margin: 0;
   padding: 0;
   min-height: 100%;
-  font-family: 'Segoe UI', 'Nunito', Arial, sans-serif;
-  background: linear-gradient(180deg, #fff7eb 0%, #eef7ff 100%);
-  color: var(--kids-text);
 }
 
 body {
   min-height: 100vh;
+  font-family: 'Avenir Next Rounded', 'Nunito', 'Trebuchet MS', 'Segoe UI', sans-serif;
+  color: var(--kids-text);
+  background:
+    radial-gradient(circle at top left, rgba(125, 211, 252, 0.35), transparent 32%),
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.25), transparent 28%),
+    linear-gradient(180deg, var(--kids-bg) 0%, var(--kids-bg-secondary) 100%);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
 
 button,
@@ -37,54 +53,214 @@ button,
   border-radius: 999px !important;
 }
 
-.p-card,
-.p-panel,
-.p-dialog {
-  border-radius: var(--border-round-xl) !important;
-  box-shadow: var(--shadow-soft);
-}
-
-.kids-page {
-  min-height: 100vh;
-  padding: 24px;
-}
-
-.kids-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.kids-title {
-  font-size: 2rem;
-  font-weight: 800;
-  margin-bottom: 8px;
-}
-
-.kids-subtitle {
-  font-size: 1rem;
-  color: var(--kids-muted);
-  margin-bottom: 24px;
-}
-
-.kids-card {
-  border-radius: var(--border-round-xl);
-  background: var(--kids-surface);
-  box-shadow: var(--shadow-soft);
-}
-.p-inputtext,
 .p-button {
-  font-size: 1rem;
+  min-height: 52px;
+  font-weight: 800 !important;
+  letter-spacing: 0.01em;
+}
+
+.p-button.p-button-outlined {
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .p-inputtext {
   border-radius: 18px !important;
   padding: 0.95rem 1rem !important;
+  min-height: 52px;
+}
+
+.p-card,
+.p-panel,
+.p-dialog {
+  border-radius: var(--border-round-xl) !important;
+  box-shadow: var(--kids-shadow-soft);
+}
+
+.kids-page {
+  min-height: 100dvh;
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(14px, env(safe-area-inset-right))
+    max(22px, env(safe-area-inset-bottom))
+    max(14px, env(safe-area-inset-left));
+  position: relative;
+}
+
+.kids-page::before,
+.kids-page::after {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 999px;
+  filter: blur(18px);
+}
+
+.kids-page::before {
+  width: 220px;
+  height: 220px;
+  top: 4vh;
+  right: -40px;
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.kids-page::after {
+  width: 180px;
+  height: 180px;
+  bottom: 10vh;
+  left: -40px;
+  background: rgba(236, 72, 153, 0.14);
+}
+
+.kids-container {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+}
+
+.kids-card {
+  border-radius: var(--border-round-xl);
+  background: var(--kids-surface);
+  border: 1px solid var(--kids-border);
+  box-shadow: var(--kids-shadow-soft);
+  backdrop-filter: blur(14px);
+}
+
+.kids-card-strong {
+  background: var(--kids-surface-strong);
+}
+
+.kids-title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.02;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.kids-subtitle {
+  margin: 0;
+  color: var(--kids-muted);
+  font-size: clamp(0.98rem, 2.4vw, 1.1rem);
+  line-height: 1.6;
+}
+
+.kids-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #2554a3;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.kids-section-title {
+  margin: 0 0 10px;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  font-weight: 900;
+}
+
+.kids-section-copy {
+  margin: 0;
+  color: var(--kids-muted);
+  line-height: 1.55;
+}
+
+.kids-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  font-weight: 800;
+  color: #183a54;
+}
+
+.kids-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.kids-chip.success {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.kids-chip.warning {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.kids-chip.info {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.kids-chip.neutral {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.kids-progress-bar {
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.2);
+}
+
+.kids-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #38bdf8 0%, #2563eb 100%);
+}
+
+.kids-grid-cards {
+  display: grid;
+  gap: 16px;
+}
+
+.kids-mobile-stack {
+  display: grid;
+  gap: 16px;
 }
 
 label {
   color: var(--kids-text);
 }
 
-button {
-  font-family: inherit;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
+
+@media (min-width: 768px) {
+  .kids-grid-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .kids-grid-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+

@@ -1,347 +1,571 @@
 <template>
-    <div class="kids-page">
-        <div class="kids-container" v-if="moduleData">
-            <div class="kids-card p-4 md:p-6 mb-4">
-                <div class="flex flex-column md:flex-row md:align-items-center md:justify-content-between gap-4">
-                    <div>
-                        <div class="text-5xl mb-2">{{ moduleData.emoji }}</div>
-                        <div class="world-chip mb-2">{{ worldLabel }}</div>
-                        <h1 class="kids-title mb-2">{{ moduleData.title }}</h1>
-                        <p class="kids-subtitle mb-2">{{ moduleData.description }}</p>
-
-                        <div class="text-sm font-semibold mb-2">
-                            Progresso no módulo: {{ reactiveModuleProgress?.completedPhases ?? 0 }}/{{
-                                moduleData.totalPhases }}
-                        </div>
-                        <ProgressBar :value="progressPercent" style="height: 14px" />
-                    </div>
-
-                    <div class="phase-badge" v-if="currentPhase">
-                        Fase {{ currentPhase.order }} de {{ moduleData.totalPhases }}
-                    </div>
-                </div>
+  <div class="kids-page">
+    <div v-if="moduleData" class="kids-container module-shell">
+      <section class="kids-card module-hero" :style="{ '--module-gradient': moduleData.gradient }">
+        <div class="hero-top">
+          <div class="hero-title-block">
+            <div class="kids-eyebrow">{{ moduleData.worldLabel }}</div>
+            <div class="hero-title-row">
+              <span class="hero-module-emoji">{{ moduleData.emoji }}</span>
+              <div>
+                <h1 class="kids-title">{{ moduleData.title }}</h1>
+                <p class="kids-subtitle">{{ moduleData.description }}</p>
+              </div>
             </div>
+          </div>
 
-            <div v-if="hasPhases && !moduleCompleted && currentPhase" class="kids-card p-4 md:p-6">
-                <div class="text-center mb-4">
-                    <div class="text-4xl mb-2">🎯</div>
-                    <h2 class="text-2xl font-bold mb-2">{{ currentPhase.question.title }}</h2>
-                    <p class="text-lg">{{ currentPhase.question.prompt }}</p>
-                </div>
-
-                <div class="grid">
-                    <div v-for="option in currentPhase.question.options" :key="String(option.value)"
-                        class="col-12 md:col-4">
-                        <button type="button" class="answer-card w-full" :class="getAnswerState(option.value)"
-                            :disabled="isChecking" @click="selectedAnswer = option.value">
-                            {{ option.label }}
-                        </button>
-                    </div>
-                </div>
-
-                <div class="mt-5 flex flex-column md:flex-row gap-3 justify-content-center">
-                    <Button label="Voltar ao hub" icon="pi pi-arrow-left" severity="secondary" outlined
-                        @click="goHub" />
-
-                    <Button :label="isChecking ? 'Verificando...' : 'Verificar resposta'" icon="pi pi-check"
-                        :disabled="selectedAnswer === null || isChecking" @click="checkAnswer" />
-
-
-                </div>
-            </div>
-
-            <div v-else-if="moduleCompleted" class="kids-card p-4 md:p-6 text-center">
-                <div class="text-6xl mb-3">🏆</div>
-                <h2 class="text-3xl font-bold mb-3">Módulo concluído!</h2>
-                <p class="text-lg mb-4">
-                    Parabéns! Você terminou a <strong>{{ moduleData.title }}</strong> e ganhou estrelas estudando
-                    brincando.
-                </p>
-
-                <div class="completion-box mb-4">
-                    <div><strong>Fases concluídas:</strong> {{ reactiveModuleProgress?.completedPhases ?? 0 }}/{{
-                        moduleData.totalPhases }}</div>
-                    <div><strong>Estrelas no módulo:</strong> ⭐ {{ reactiveModuleProgress?.earnedStars ?? 0 }}</div>
-                </div>
-
-                <div class="flex flex-column md:flex-row gap-3 justify-content-center">
-                    <Button label="Voltar ao hub" icon="pi pi-home" @click="goHub" />
-
-                    <Button label="Jogar novamente depois" icon="pi pi-refresh" severity="secondary" outlined
-                        @click="goHub" />
-                </div>
-            </div>
-
-            <div v-else class="kids-card p-4 md:p-6 text-center">
-                <div class="text-6xl mb-3">🛠️</div>
-                <h2 class="text-3xl font-bold mb-3">Módulo em construção</h2>
-                <p class="text-lg mb-4">
-                    Ainda vamos adicionar as fases de <strong>{{ moduleData.title }}</strong>.
-                </p>
-
-                <div class="completion-box mb-4">
-                    <div><strong>Status:</strong> conteúdo ainda não cadastrado</div>
-                    <div><strong>Próximo passo:</strong> criar as 3 fases deste mundo</div>
-                </div>
-
-                <div class="flex justify-content-center">
-                    <Button label="Voltar ao hub" icon="pi pi-arrow-left" severity="secondary" outlined
-                        @click="goHub" />
-                </div>
-            </div>
-
-
+          <div class="hero-meta">
+            <div class="kids-chip info">Plano de 5 dias</div>
+            <div class="kids-chip success">⭐ {{ moduleProgress?.earnedStars ?? 0 }} estrelas</div>
+          </div>
         </div>
 
-        <Toast />
+        <div class="hero-progress">
+          <div class="hero-progress-row">
+            <span>Progresso do modulo</span>
+            <span>Dia {{ displayDay }}/{{ moduleData.totalDays }}</span>
+          </div>
+          <div class="kids-progress-bar">
+            <div class="kids-progress-fill" :style="{ width: `${moduleProgressPercent}%` }"></div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="screenState === 'locked'" class="kids-card state-card">
+        <div class="state-icon">🔒</div>
+        <h2>Modulo bloqueado</h2>
+        <p>
+          Termine o mundo anterior para liberar esta trilha. Isso ajuda a manter a jornada clara e
+          divertida.
+        </p>
+        <div class="state-actions">
+          <Button label="Voltar ao hub" icon="pi pi-home" @click="goHub" />
+        </div>
+      </section>
+
+      <section v-else-if="screenState === 'intro'" class="kids-card state-card intro-card">
+        <div class="intro-grid">
+          <div class="intro-copy">
+            <div class="kids-chip warning">{{ currentMissionLabel }}</div>
+            <h2>Missao do dia</h2>
+            <p>
+              Responda {{ moduleData.sessionQuestionCount }} perguntas curtas com apoio visual.
+              Para subir de dia, acerte pelo menos 3 respostas.
+            </p>
+
+            <ul>
+              <li v-for="goal in moduleData.learningMoments" :key="goal">{{ goal }}</li>
+            </ul>
+          </div>
+
+          <div v-if="moduleProgress?.lastSessionSummary" class="resume-card">
+            <strong>Ultima sessao</strong>
+            <span>
+              {{ moduleProgress.lastSessionSummary.correctAnswers }}/{{
+                moduleProgress.lastSessionSummary.totalQuestions
+              }}
+              corretas
+            </span>
+            <small>
+              {{
+                moduleProgress.lastSessionSummary.advancedDay
+                  ? 'Dia concluido. Pode avancar.'
+                  : 'Voce pode repetir com novas perguntas.'
+              }}
+            </small>
+          </div>
+        </div>
+
+        <div class="state-actions">
+          <Button label="Voltar ao hub" icon="pi pi-arrow-left" severity="secondary" outlined @click="goHub" />
+          <Button
+            :label="resumeLabel"
+            icon="pi pi-play"
+            @click="startSession"
+          />
+        </div>
+      </section>
+
+      <section v-else-if="screenState === 'question' && displayedQuestion" class="question-shell">
+        <article class="kids-card question-card">
+          <div class="question-meta">
+            <span class="kids-chip info">Pergunta {{ displayedQuestionNumber }}/{{ totalQuestions }}</span>
+            <span class="kids-chip neutral">{{ displayedQuestion.difficulty }}</span>
+          </div>
+
+          <div class="question-body">
+            <div class="question-badge">{{ displayedQuestion.emoji }}</div>
+            <h2>{{ displayedQuestion.title }}</h2>
+            <p class="question-prompt">{{ displayedQuestion.prompt }}</p>
+            <p class="question-tip">Dica: {{ displayedQuestion.tip }}</p>
+          </div>
+
+          <div class="question-options">
+            <QuizOptionCard
+              v-for="option in displayedQuestion.options"
+              :key="String(option.value)"
+              :option="option"
+              :state="getOptionState(option.value)"
+              :disabled="questionResolved"
+              @click="pickAnswer(option.value)"
+            />
+          </div>
+
+          <div v-if="lastResult" class="feedback-panel" :class="lastResult.isCorrect ? 'positive' : 'negative'">
+            <strong>{{ lastResult.message }}</strong>
+            <p>{{ lastResult.explanation }}</p>
+            <small v-if="lastResult.isCorrect">+{{ lastResult.starsEarned }} estrela(s) nesta resposta</small>
+          </div>
+
+          <div class="state-actions">
+            <Button label="Voltar ao hub" icon="pi pi-home" severity="secondary" outlined @click="goHub" />
+            <Button
+              :label="questionResolved ? continueLabel : 'Responder'"
+              icon="pi pi-check"
+              :disabled="!questionResolved && selectedAnswer === null"
+              @click="questionResolved ? advanceAfterFeedback() : submitAnswer()"
+            />
+          </div>
+        </article>
+      </section>
+
+      <section v-else-if="screenState === 'summary' && sessionSummary" class="kids-card state-card summary-card">
+        <div class="state-icon">🌟</div>
+        <h2>{{ sessionSummary.advancedDay ? 'Dia concluido!' : 'Vamos tentar mais uma vez!' }}</h2>
+        <p>
+          Voce acertou {{ sessionSummary.correctAnswers }} de
+          {{ sessionSummary.totalQuestions }} perguntas e ganhou
+          {{ sessionSummary.starsEarned }} estrela(s).
+        </p>
+
+        <div class="summary-metrics">
+          <div class="kids-stat-pill"><span>🎯</span><span>{{ Math.round(sessionSummary.accuracy * 100) }}%</span></div>
+          <div class="kids-stat-pill"><span>📅</span><span>Proximo dia: {{ sessionSummary.nextDay }}</span></div>
+        </div>
+
+        <div class="state-actions">
+          <Button label="Voltar ao hub" icon="pi pi-home" severity="secondary" outlined @click="goHub" />
+          <Button
+            :label="sessionSummary.advancedDay ? `Ir para o dia ${sessionSummary.nextDay}` : 'Repetir este dia'"
+            icon="pi pi-play"
+            @click="prepareNextStep"
+          />
+        </div>
+      </section>
+
+      <section
+        v-else-if="screenState === 'module-complete' && moduleProgress"
+        class="kids-card state-card completion-card"
+      >
+        <div class="state-icon">🏆</div>
+        <div class="kids-chip success">{{ moduleData.rewardLabel }}</div>
+        <h2>Modulo concluido com celebracao!</h2>
+        <p>
+          Parabens! Voce terminou os 5 dias deste mundo e desbloqueou uma conquista real no app.
+        </p>
+
+        <div class="summary-metrics">
+          <div class="kids-stat-pill"><span>⭐</span><span>{{ moduleProgress.earnedStars }} estrelas</span></div>
+          <div class="kids-stat-pill"><span>🎯</span><span>{{ Math.round(moduleProgress.bestAccuracy * 100) }}%</span></div>
+          <div class="kids-stat-pill"><span>🔥</span><span>{{ moduleProgress.currentStreak }}</span></div>
+        </div>
+
+        <div class="state-actions">
+          <Button label="Voltar ao hub" icon="pi pi-home" severity="secondary" outlined @click="goHub" />
+          <Button label="Sessao de revisao" icon="pi pi-refresh" @click="startSession" />
+        </div>
+      </section>
     </div>
+
+    <Toast />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import confetti from 'canvas-confetti'
 import Button from 'primevue/button'
-import ProgressBar from 'primevue/progressbar'
 import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
 
-import { gameModules, modulePhases } from '@/data/modules/modules.data'
+import QuizOptionCard from '@/components/quiz/QuizOptionCard.vue'
+import { getModuleById } from '@/data/modules/modules.data'
 import { audioService } from '@/services/audio.service'
+import { celebrationService } from '@/services/celebration.service'
 import { moduleProgressService } from '@/services/moduleProgress.service'
+import { moduleQuizService } from '@/services/moduleQuiz.service'
 import { playerProfileService } from '@/services/playerProfile.service'
-import type { ModuleId, ModuleProgress } from '@/types/module'
+import type { ModuleId, ModuleProgress, ModuleQuestion, ModuleSessionSummary } from '@/types/module'
+
+type ScreenState = 'locked' | 'intro' | 'question' | 'summary' | 'module-complete'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
+const screenState = ref<ScreenState>('intro')
+const moduleProgress = ref<ModuleProgress | null>(null)
+const sessionSummary = ref<ModuleSessionSummary | null>(null)
 const selectedAnswer = ref<string | number | null>(null)
-const revealedCorrectAnswer = ref<string | number | null>(null)
-const revealedWrongAnswer = ref<string | number | null>(null)
-const isChecking = ref(false)
+const questionResolved = ref(false)
+const lastResult = ref<ReturnType<typeof moduleQuizService.evaluateAnswer> | null>(null)
+const resolvedQuestion = ref<ModuleQuestion | null>(null)
 
 const moduleId = computed(() => route.params.id as ModuleId)
-
-const moduleData = computed(() => {
-    return gameModules.find((item) => item.id === moduleId.value) ?? null
-})
-
-const worldLabel = computed(() => {
-    const map: Record<ModuleId, string> = {
-        math: 'Mundo da Matemática',
-        science: 'Mundo da Ciência',
-        geography: 'Mundo da Geografia',
-        language: 'Mundo das Palavras'
-    }
-
-    return map[moduleId.value] ?? 'Mundo da Aventura'
-})
-
-const phases = computed(() => {
-    return modulePhases
-        .filter((item) => item.moduleId === moduleId.value)
-        .sort((a, b) => a.order - b.order)
-})
-
-const reactiveModuleProgress = ref<ModuleProgress | null>(
-    moduleProgressService.getByModule(moduleId.value)
+const moduleData = computed(() => getModuleById(moduleId.value))
+const activeSession = computed(() => moduleProgress.value?.activeSession ?? null)
+const totalQuestions = computed(() => activeSession.value?.questionIds.length ?? 0)
+const currentQuestionIndex = computed(() => activeSession.value?.answers.length ?? 0)
+const currentQuestionNumber = computed(() => currentQuestionIndex.value + 1)
+const displayedQuestionNumber = computed(() =>
+  questionResolved.value ? Math.max(1, currentQuestionIndex.value) : currentQuestionNumber.value,
 )
 
-const currentPhase = computed(() => {
-    return (
-        phases.value.find(
-            (phase) =>
-                !reactiveModuleProgress.value?.completedPhaseIds.includes(phase.id)
-        ) ?? null
-    )
+const activeQuestion = computed(() => {
+  if (!activeSession.value) return null
+  const questionId = activeSession.value.questionIds[currentQuestionIndex.value]
+  return questionId ? moduleQuizService.getQuestion(questionId) : null
+})
+const displayedQuestion = computed(() => (questionResolved.value ? resolvedQuestion.value : activeQuestion.value))
+
+const displayDay = computed(() => {
+  if (!moduleData.value || !moduleProgress.value) return 1
+  if (moduleProgress.value.completedAt) return moduleData.value.totalDays
+  return Math.min(moduleProgress.value.completedDays + 1, moduleData.value.totalDays)
 })
 
-const hasPhases = computed(() => phases.value.length > 0)
-
-const moduleCompleted = computed(() => {
-    if (!moduleData.value || !reactiveModuleProgress.value) return false
-
-    return reactiveModuleProgress.value.completedPhases >= moduleData.value.totalPhases
+const moduleProgressPercent = computed(() => {
+  if (!moduleData.value || !moduleProgress.value) return 0
+  return (moduleProgress.value.completedDays / moduleData.value.totalDays) * 100
 })
 
-const progressPercent = computed(() => {
-    if (!moduleData.value || !reactiveModuleProgress.value) return 0
-
-    return Math.round(
-        (reactiveModuleProgress.value.completedPhases / moduleData.value.totalPhases) * 100
-    )
+const currentMissionLabel = computed(() => `Dia ${displayDay.value} de ${moduleData.value?.totalDays ?? 5}`)
+const resumeLabel = computed(() => (moduleProgress.value?.activeSession ? 'Continuar sessao' : `Comecar dia ${displayDay.value}`))
+const continueLabel = computed(() => {
+  const session = activeSession.value
+  if (!session) return 'Continuar'
+  return session.answers.length >= session.questionIds.length ? 'Ver resultado da sessao' : 'Proxima pergunta'
 })
 
-function syncModuleProgress() {
-    reactiveModuleProgress.value = moduleProgressService.getByModule(moduleId.value)
+function syncProgress() {
+  moduleProgress.value = moduleProgressService.getByModule(moduleId.value)
 }
 
-function resetAnswerFeedback() {
-    selectedAnswer.value = null
-    revealedCorrectAnswer.value = null
-    revealedWrongAnswer.value = null
-    isChecking.value = false
+function resolveScreenState() {
+  syncProgress()
+  sessionSummary.value = moduleProgress.value?.lastSessionSummary ?? null
+
+  if (!moduleProgress.value?.unlocked) {
+    screenState.value = 'locked'
+    return
+  }
+
+  if (moduleProgress.value.activeSession) {
+    screenState.value = 'question'
+    return
+  }
+
+  if (moduleProgress.value.completedAt) {
+    screenState.value = 'module-complete'
+    return
+  }
+
+  screenState.value = 'intro'
+}
+
+function resetQuestionState() {
+  selectedAnswer.value = null
+  questionResolved.value = false
+  lastResult.value = null
+  resolvedQuestion.value = null
+}
+
+function loadModuleState() {
+  if (!moduleData.value) {
+    router.replace('/hub')
+    return
+  }
+
+  playerProfileService.touchLastActive()
+  resolveScreenState()
+  resetQuestionState()
 }
 
 function goHub() {
-    router.push('/hub')
+  router.push('/hub')
 }
 
-function fireConfetti() {
-    confetti({
-        particleCount: 120,
-        spread: 90,
-        origin: { y: 0.6 }
-    })
-}
+function startSession() {
+  audioService.unlock()
+  const playerSeed = playerProfileService.get()?.name ?? 'explorador'
+  const nextSession = moduleProgressService.createOrResumeSession(moduleId.value, playerSeed)
 
-function checkAnswer() {
-    if (!currentPhase.value) return
-    if (selectedAnswer.value === null) return
-    if (isChecking.value) return
-
-    isChecking.value = true
-
-    const question = currentPhase.value.question
-
-    if (selectedAnswer.value === question.correctAnswer) {
-        revealedCorrectAnswer.value = question.correctAnswer
-        audioService.playSuccess()
-
-        const justCompletedPhaseId = currentPhase.value.id
-
-        const wasNewCompletion = moduleProgressService.completePhase(
-            moduleId.value,
-            justCompletedPhaseId,
-            question.rewardStars
-        )
-
-        if (wasNewCompletion) {
-            playerProfileService.addStars(question.rewardStars)
-            syncModuleProgress()
-        }
-
-        toast.add({
-            severity: 'success',
-            summary: 'Parabéns!',
-            detail: question.successMessage,
-            life: 2200
-        })
-
-        const isNowCompleted =
-            reactiveModuleProgress.value?.completedPhases === moduleData.value?.totalPhases
-
-        window.setTimeout(() => {
-            if (isNowCompleted) {
-                fireConfetti()
-            }
-
-            resetAnswerFeedback()
-        }, 900)
-
-        return
-    }
-
-    revealedWrongAnswer.value = selectedAnswer.value
-    revealedCorrectAnswer.value = question.correctAnswer
-    audioService.playError()
-
+  if (!nextSession) {
     toast.add({
-        severity: 'warn',
-        summary: 'Quase lá!',
-        detail: question.errorMessage,
-        life: 2200
+      severity: 'warn',
+      summary: 'Modulo bloqueado',
+      detail: 'Complete a etapa anterior para liberar esta jornada.',
+      life: 2400
     })
+    resolveScreenState()
+    return
+  }
 
-    window.setTimeout(() => {
-        revealedWrongAnswer.value = null
-        revealedCorrectAnswer.value = null
-        selectedAnswer.value = null
-        isChecking.value = false
-    }, 1100)
+  syncProgress()
+  resetQuestionState()
+  screenState.value = 'question'
 }
 
-function getAnswerState(optionValue: string | number) {
-    if (revealedCorrectAnswer.value === optionValue) return 'correct'
-    if (revealedWrongAnswer.value === optionValue) return 'wrong'
-    if (selectedAnswer.value === optionValue) return 'selected'
-    return ''
+function pickAnswer(value: string | number) {
+  if (questionResolved.value) return
+  selectedAnswer.value = value
 }
+
+function getOptionState(value: string | number) {
+  if (!questionResolved.value || !resolvedQuestion.value || !lastResult.value) {
+    return selectedAnswer.value === value ? 'selected' : ''
+  }
+
+  if (value === resolvedQuestion.value.correctAnswer) return 'correct'
+  if (selectedAnswer.value === value && !lastResult.value.isCorrect) return 'wrong'
+  return ''
+}
+
+function submitAnswer() {
+  const question = activeQuestion.value
+  if (!question || selectedAnswer.value === null) return
+
+  audioService.unlock()
+  resolvedQuestion.value = question
+  lastResult.value = moduleQuizService.evaluateAnswer(question, selectedAnswer.value)
+  moduleProgressService.saveAnswer(
+    moduleId.value,
+    moduleQuizService.createAnswerRecord(question, selectedAnswer.value),
+  )
+
+  syncProgress()
+  questionResolved.value = true
+
+  if (lastResult.value.isCorrect) audioService.playSuccess()
+  else audioService.playError()
+}
+
+function finishSession() {
+  const summary = moduleProgressService.completeSession(moduleId.value)
+  if (!summary) return
+
+  playerProfileService.addStars(summary.starsEarned)
+  sessionSummary.value = summary
+  syncProgress()
+  resetQuestionState()
+
+  if (summary.completedModule) {
+    if (summary.firstCompletion) {
+      celebrationService.fireModuleCompletion()
+      audioService.playCelebration()
+    } else {
+      audioService.playSuccess()
+    }
+    screenState.value = 'module-complete'
+    return
+  }
+
+  toast.add({
+    severity: summary.advancedDay ? 'success' : 'warn',
+    summary: summary.advancedDay ? 'Dia concluido!' : 'Mais uma tentativa',
+    detail: summary.advancedDay
+      ? `Voce liberou o dia ${summary.nextDay}.`
+      : 'Treine mais um pouco para subir de dia.',
+    life: 2400
+  })
+
+  screenState.value = 'summary'
+}
+
+function advanceAfterFeedback() {
+  if (!activeSession.value) return
+
+  if (activeSession.value.answers.length >= activeSession.value.questionIds.length) {
+    finishSession()
+    return
+  }
+
+  resetQuestionState()
+}
+
+function prepareNextStep() {
+  resolveScreenState()
+  startSession()
+}
+
+watch(moduleId, () => {
+  loadModuleState()
+})
+
+onMounted(() => {
+  loadModuleState()
+})
 </script>
 
 <style scoped>
-.phase-badge {
-    background: #eef4ff;
-    color: #2f2f3a;
-    border-radius: 999px;
-    padding: 12px 18px;
-    font-weight: 700;
+.module-shell {
+  display: grid;
+  gap: 24px;
 }
 
-.world-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #fff3d6;
-    color: #7b5200;
-    border-radius: 999px;
-    padding: 8px 14px;
-    font-size: 0.9rem;
-    font-weight: 700;
+.module-hero,
+.state-card,
+.question-card {
+  padding: 24px;
 }
 
-.answer-card {
-    border: 3px solid transparent;
-    border-radius: 22px;
-    padding: 20px 16px;
-    background: white;
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
-    cursor: pointer;
-    font-size: 1.2rem;
-    font-weight: 700;
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        border-color 0.2s ease,
-        background-color 0.2s ease;
+.module-hero {
+  display: grid;
+  gap: 18px;
+  background: var(--module-gradient);
 }
 
-.answer-card:hover:not(:disabled) {
-    transform: translateY(-2px);
+.hero-top {
+  display: grid;
+  gap: 16px;
 }
 
-.answer-card:disabled {
-    cursor: not-allowed;
-    opacity: 0.95;
+.hero-title-row {
+  display: grid;
+  gap: 14px;
 }
 
-.answer-card.selected {
-    border-color: var(--kids-primary);
-    box-shadow: 0 12px 24px rgba(108, 99, 255, 0.18);
+.hero-module-emoji,
+.state-icon,
+.question-badge {
+  width: 72px;
+  height: 72px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  font-size: 2.3rem;
+  background: rgba(255, 255, 255, 0.9);
 }
 
-.answer-card.correct {
-    border-color: #3dbb6a;
-    background: #ecfff3;
-    color: #176433;
-    box-shadow: 0 12px 24px rgba(61, 187, 106, 0.16);
+.hero-meta,
+.hero-progress,
+.question-meta,
+.summary-metrics,
+.state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.answer-card.wrong {
-    border-color: #ff7a7a;
-    background: #fff0f0;
-    color: #8e2b2b;
-    box-shadow: 0 12px 24px rgba(255, 122, 122, 0.14);
+.hero-progress {
+  display: grid;
+  gap: 8px;
 }
 
-.completion-box {
-    max-width: 480px;
-    margin: 0 auto;
-    border-radius: 20px;
-    background: #fff8d9;
-    padding: 18px;
-    display: grid;
-    gap: 10px;
+.hero-progress-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 800;
+}
+
+.state-card,
+.question-card {
+  display: grid;
+  gap: 18px;
+}
+
+.state-card {
+  justify-items: start;
+}
+
+.state-card h2,
+.question-card h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+}
+
+.state-card p,
+.question-prompt,
+.question-tip,
+.feedback-panel p {
+  margin: 0;
+  color: var(--kids-muted);
+  line-height: 1.55;
+}
+
+.intro-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.intro-copy,
+.resume-card,
+.question-body,
+.feedback-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.intro-copy ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+  color: #49617a;
+}
+
+.resume-card {
+  padding: 18px;
+  border-radius: 24px;
+  background: rgba(248, 250, 252, 0.94);
+}
+
+.question-shell {
+  display: grid;
+}
+
+.question-options {
+  display: grid;
+  gap: 12px;
+}
+
+.feedback-panel {
+  padding: 16px 18px;
+  border-radius: 22px;
+}
+
+.feedback-panel.positive {
+  background: #ecfdf5;
+}
+
+.feedback-panel.negative {
+  background: #fef2f2;
+}
+
+.summary-card,
+.completion-card {
+  text-align: left;
+}
+
+@media (min-width: 860px) {
+  .hero-top,
+  .intro-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+    align-items: start;
+  }
+
+  .hero-title-row {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+  }
+
+  .question-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .state-actions {
+    justify-content: flex-start;
+  }
 }
 </style>
