@@ -189,62 +189,68 @@
       </div>
 
       <div v-if="showPauseOverlay" class="runner-modal-overlay">
-        <div class="runner-panel">
-          <template v-if="gameState.status === 'paused'">
+        <div class="runner-panel runner-result-panel">
+          <div v-if="gameState.status === 'paused'" class="runner-result-content">
             <h2>Jogo pausado</h2>
             <p>Respire, releia a pista e retome quando quiser.</p>
-          </template>
+          </div>
 
           <template v-else>
-            <h2>{{ gameState.status === 'victory' ? 'Round concluido' : 'Round encerrado' }}</h2>
-            <p>{{ gameState.roundProgress.finalSummaryText }}</p>
-
-            <div v-if="gameState.roundProgress.finalResult" class="result-grid">
-              <div>
-                <strong>Score</strong
-                ><span>{{ gameState.roundProgress.finalResult.scoreFinal }}</span>
-              </div>
-              <div>
-                <strong>Moedas</strong
-                ><span>+{{ gameState.roundProgress.finalResult.coinsEarned }}</span>
-              </div>
-              <div>
-                <strong>Creditos</strong
-                ><span>+{{ gameState.roundProgress.finalResult.carbonCreditsEarned }}</span>
-              </div>
-              <div>
-                <strong>Acertos</strong><span>{{ gameState.stats.qualifiedCollects }}</span>
-              </div>
-              <div>
-                <strong>Riscos</strong><span>{{ gameState.stats.riskyCollects }}</span>
-              </div>
-              <div>
-                <strong>Erros</strong
-                ><span>{{
-                  gameState.stats.invalidCollects + gameState.stats.collisionsTaken
-                }}</span>
-              </div>
+            <div class="runner-result-header">
+              <h2>{{ gameState.status === 'victory' ? 'Round concluido' : 'Round encerrado' }}</h2>
+              <p>{{ gameState.roundProgress.finalSummaryText }}</p>
             </div>
 
-            <div v-if="gameState.roundProgress.finalCard" class="final-card">
-              <div class="final-card-icon">{{ gameState.roundProgress.finalCard.icon }}</div>
-              <div>
-                <strong>{{ gameState.roundProgress.finalCard.title }}</strong>
-                <p>{{ gameState.roundProgress.finalCard.message }}</p>
-                <small>{{ gameState.roundProgress.finalCard.tip }}</small>
+            <div class="runner-result-content">
+              <div v-if="gameState.roundProgress.finalResult" class="result-grid">
+                <div>
+                  <strong>Score</strong>
+                  <span>{{ gameState.roundProgress.finalResult.scoreFinal }}</span>
+                </div>
+                <div>
+                  <strong>Moedas</strong>
+                  <span>+{{ gameState.roundProgress.finalResult.coinsEarned }}</span>
+                </div>
+                <div>
+                  <strong>Creditos</strong>
+                  <span>+{{ gameState.roundProgress.finalResult.carbonCreditsEarned }}</span>
+                </div>
+                <div>
+                  <strong>Acertos</strong>
+                  <span>{{ gameState.stats.qualifiedCollects }}</span>
+                </div>
+                <div>
+                  <strong>Riscos</strong>
+                  <span>{{ gameState.stats.riskyCollects }}</span>
+                </div>
+                <div>
+                  <strong>Erros</strong>
+                  <span>{{
+                    gameState.stats.invalidCollects + gameState.stats.collisionsTaken
+                  }}</span>
+                </div>
               </div>
-            </div>
 
-            <div
-              v-if="gameState.roundProgress.finalResult?.newlyUnlockedVehicleIds.length"
-              class="unlock-banner"
-            >
-              Novo veiculo liberado:
-              {{
-                gameState.roundProgress.finalResult.newlyUnlockedVehicleIds
-                  .map((vehicleId) => getVehicleLabel(vehicleId))
-                  .join(', ')
-              }}
+              <div v-if="gameState.roundProgress.finalCard" class="final-card">
+                <div class="final-card-icon">{{ gameState.roundProgress.finalCard.icon }}</div>
+                <div>
+                  <strong>{{ gameState.roundProgress.finalCard.title }}</strong>
+                  <p>{{ gameState.roundProgress.finalCard.message }}</p>
+                  <small>{{ gameState.roundProgress.finalCard.tip }}</small>
+                </div>
+              </div>
+
+              <div
+                v-if="gameState.roundProgress.finalResult?.newlyUnlockedVehicleIds.length"
+                class="unlock-banner"
+              >
+                Novo veiculo liberado:
+                {{
+                  gameState.roundProgress.finalResult.newlyUnlockedVehicleIds
+                    .map((vehicleId) => getVehicleLabel(vehicleId))
+                    .join(', ')
+                }}
+              </div>
             </div>
           </template>
 
@@ -252,6 +258,7 @@
             <button v-if="gameState.status === 'paused'" class="primary-cta" @click="resumeRunner">
               Continuar
             </button>
+
             <button
               v-if="
                 gameState.status === 'victory' &&
@@ -262,6 +269,7 @@
             >
               Proximo round
             </button>
+
             <button
               v-if="gameState.status === 'victory' || gameState.status === 'gameover'"
               class="secondary-cta"
@@ -269,6 +277,7 @@
             >
               Jogar novamente
             </button>
+
             <button
               v-if="gameState.status === 'victory' || gameState.status === 'gameover'"
               class="secondary-cta"
@@ -276,6 +285,7 @@
             >
               Trocar round ou veiculo
             </button>
+
             <button class="ghost-cta" @click="exitRunner">Sair</button>
           </div>
         </div>
@@ -304,11 +314,7 @@
         </div>
 
         <div class="movement-cluster">
-          <button
-            class="control-btn movement-btn"
-            @touchstart.prevent="moveLeft"
-            @click="moveLeft"
-          >
+          <button class="control-btn movement-btn" @touchstart.prevent="moveLeft" @click="moveLeft">
             <span class="movement-arrow">&lt;</span>
             <small>Esquerda</small>
           </button>
@@ -1357,10 +1363,7 @@ watch(
   z-index: 22;
   display: grid;
   gap: 12px;
-  padding:
-    14px
-    max(18px, env(safe-area-inset-right))
-    calc(env(safe-area-inset-bottom) + 18px)
+  padding: 14px max(18px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 18px)
     max(18px, env(safe-area-inset-left));
   pointer-events: none;
   background: linear-gradient(
@@ -1461,10 +1464,7 @@ watch(
   }
   .runner-start-overlay {
     place-items: end center;
-    padding:
-      16px
-      max(14px, env(safe-area-inset-right))
-      calc(env(safe-area-inset-bottom) + 14px)
+    padding: 16px max(14px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 14px)
       max(14px, env(safe-area-inset-left));
   }
   .start-stats {
@@ -1479,6 +1479,88 @@ watch(
   }
   .movement-cluster {
     width: 100%;
+  }
+}
+
+.runner-result-panel {
+  width: min(94vw, 440px);
+  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.runner-modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  background: rgba(8, 15, 30, 0.28);
+  backdrop-filter: blur(8px);
+}
+
+@media (max-width: 640px) {
+  .runner-modal-overlay {
+    place-items: end center;
+  }
+
+  .runner-result-panel {
+    width: min(94vw, 420px);
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 12px);
+    padding: 20px 16px;
+    border-radius: 24px;
+    gap: 12px;
+  }
+}
+@media (max-width: 640px) {
+  .runner-modal-overlay {
+    place-items: end center;
+  }
+
+  .runner-result-panel {
+    width: min(94vw, 420px);
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 12px);
+    padding: 20px 16px;
+    border-radius: 24px;
+    gap: 12px;
+  }
+}
+.pause-actions {
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.24);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.94) 28%,
+    rgba(255, 255, 255, 1) 100%
+  );
+}
+
+.runner-modal-overlay {
+  padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+}
+
+.runner-modal-overlay .runner-panel {
+  width: min(94vw, 440px);
+  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px);
+  overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  .runner-modal-overlay {
+    place-items: end center;
+  }
+
+  .runner-modal-overlay .runner-panel {
+    padding: 20px 16px;
+    border-radius: 24px;
   }
 }
 </style>
