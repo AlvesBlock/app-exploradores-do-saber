@@ -1,10 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import HubView from '@/views/HubView.vue'
+import MagicGalleryView from '@/views/MagicGalleryView.vue'
 import ModuleView from '@/views/ModuleView.vue'
 import OnboardingView from '@/views/OnboardingView.vue'
 import PetView from '@/views/PetView.vue'
 import RunnerView from '@/views/RunnerView.vue'
+import { magicGalleryProgressService } from '@/services/magicGalleryProgress.service'
+import { moduleProgressService } from '@/services/moduleProgress.service'
 import { playerProfileService } from '@/services/playerProfile.service'
 
 const router = createRouter({
@@ -33,6 +36,12 @@ const router = createRouter({
       meta: { requiresProfile: true }
     },
     {
+      path: '/galeria-encantada',
+      name: 'magic-gallery',
+      component: MagicGalleryView,
+      meta: { requiresProfile: true }
+    },
+    {
       path: '/pet',
       name: 'pet',
       component: PetView,
@@ -54,6 +63,10 @@ router.beforeEach((to) => {
     return { name: 'onboarding' }
   }
 
+  if (to.name === 'magic-gallery' && !magicGalleryProgressService.isUnlocked(moduleProgressService.getAll())) {
+    return { name: 'hub' }
+  }
+
   if (to.name === 'onboarding' && hasProfile) {
     return { name: 'hub' }
   }
@@ -62,4 +75,3 @@ router.beforeEach((to) => {
 })
 
 export default router
-

@@ -18,6 +18,7 @@
 
 - [ ] Verificar avatar, estrelas totais e resumo de progresso
 - [ ] Confirmar primeiro modulo desbloqueado e demais bloqueados
+- [ ] Confirmar card `Plus` bloqueado no Hub
 - [ ] Validar cards dos modulos em viewport mobile portrait
 - [ ] Abrir pet, trocar perfil e retornar ao hub sem perder estado
 
@@ -32,15 +33,30 @@
 - [ ] Concluir a sessao com pelo menos 75 por cento de acerto
 - [ ] Confirmar subida de dia
 - [ ] Reabrir modulo e validar retomada no dia seguinte
-- [ ] Concluir um modulo inteiro e validar:
-  - [ ] confete
-  - [ ] audio de celebracao
-  - [ ] estrelas persistidas
-  - [ ] desbloqueio do proximo modulo
+- [ ] Concluir os 4 modulos do app e validar:
+  - [ ] confete e audio de celebracao do modulo
+  - [ ] card `Plus` com estado liberado
+  - [ ] overlay especial da `Galeria Encantada`
 
-## Persistencia
+## Galeria Encantada
 
-- [ ] Recarregar a pagina no meio de uma sessao e verificar retomada segura
+- [ ] Entrar em `/galeria-encantada`
+- [ ] Validar hero, resumo de progresso e navegacao por paineis
+- [ ] Revelar o destaque diario e confirmar reward
+- [ ] Abrir o album e revelar ao menos uma figurinha
+- [ ] Jogar a memoria e concluir uma rodada
+- [ ] Concluir um quiz premium
+- [ ] Resgatar pelo menos uma missao
+- [ ] Recarregar a pagina e confirmar persistencia de:
+  - [ ] unlock do premium
+  - [ ] `magicDust`
+  - [ ] figurinhas reveladas
+  - [ ] missoes
+  - [ ] destaque diario
+
+## Persistencia geral
+
+- [ ] Recarregar a pagina no meio de uma sessao de modulo e verificar retomada segura
 - [ ] Fechar e abrir o app com progresso salvo no hub
 - [ ] Verificar que o pet usa as estrelas persistidas
 
@@ -53,7 +69,7 @@
 
 ## Responsividade e acessibilidade
 
-- [ ] Validar Home, Onboarding, Hub, Modulo e Pet em viewport pequena
+- [ ] Validar Home, Onboarding, Hub, Modulo, Galeria Encantada e Pet em viewport pequena
 - [ ] Verificar botoes com area de toque confortavel
 - [ ] Verificar contraste de textos e estados de feedback
 - [ ] Verificar leitura clara sem blocos longos demais
@@ -62,4 +78,3 @@
 
 - [ ] Garantir que o acesso ao Runner continua disponivel pelo hub
 - [ ] Validar que a refatoracao do app principal nao removeu o modulo arcade
-

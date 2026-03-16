@@ -1,38 +1,49 @@
-# Documentação do Projeto: Exploradores do Saber
+# Documentacao do Projeto: Exploradores do Saber
 
-Bem-vindo à documentação do _Exploradores do Saber_ — um aplicativo educativo gamificado com foco em aprendizagem ambiental, jogos educativos e progresso estruturado.
+Esta pasta concentra o contexto tecnico e operacional do app `Exploradores do Saber`.
 
-> 🧠 **Propósito**: fornecer contexto técnico e operacional para desenvolvedores humanos e assistentes de IA para trabalhar de forma segura, consistente e produtiva neste projeto.
+O estado atual do produto inclui:
 
----
+- trilhas principais com plano de 5 dias por modulo
+- `Hub` com progresso, extras e um card premium `Plus`
+- modulo premium `Galeria Encantada`, desbloqueado apos a conclusao dos 4 mundos principais
+- `Pet` e `Runner` como experiencias paralelas ao estudo principal
 
-## Como navegar nesta documentação
+## Ordem recomendada de leitura
 
-1. **`PROJECT_OVERVIEW.md`** – visão geral do projeto, stack e estrutura.
-2. **`ARCHITECTURE.md`** – layout arquitetural detalhado do código e das responsabilidades.
-3. **`AI_DEV_WORKFLOW.md`** – fluxo obrigatório para qualquer trabalho orientado por IA.
-4. **`GAME/`** – documentação de produto e técnica do jogo (principalmente Runner).
-5. **`FEATURES/`** – templates para novas features, plano de implementação, logs e docs de features como `QUIZ_SYSTEM.md`.
-6. **`DECISIONS/`** – registro de decisões arquiteturais (ADR).
-7. **`TESTING/`** – plano de testes manual e de regressão.
+1. `PROJECT_OVERVIEW.md`
+2. `ARCHITECTURE.md`
+3. `AI_DEV_WORKFLOW.md`
+4. `CODING_RULES.md`
+5. `GLOSSARY.md`
+6. `FEATURES/MAGIC_GALLERY.md` e `FEATURES/QUIZ_SYSTEM.md`
+7. `DECISIONS/`
+8. `GAME/`
+9. `TESTING/`
 
----
+## Diretorios mais importantes
 
-## Regra básica de atualização
+- `FEATURES/`
+  - documentacao funcional das features do app principal
+- `DECISIONS/`
+  - ADRs com decisoes arquiteturais relevantes
+- `GAME/`
+  - documentacao dedicada ao Runner
+- `TESTING/`
+  - checklist manual e regressao
 
-Sempre que uma alteração significativa for feita no código (novas features, refatoração, correção de bugs), **a documentação deve ser atualizada** para refletir o estado real do projeto e as decisões tomadas.
+## Regra de manutencao
 
-Para alterações pequenas, inclua pelo menos um parágrafo em:
+Qualquer mudanca funcional relevante deve atualizar pelo menos:
 
-- `docs/PROJECT_OVERVIEW.md` (modificações na estrutura ou stack)
-- `docs/ARCHITECTURE.md` (mudanças na organização em camadas)
-- `docs/GAME/...` (qualquer mudança no comportamento do jogo)
+- `docs/PROJECT_OVERVIEW.md`
+- `docs/ARCHITECTURE.md`
+- o doc da feature impactada em `docs/FEATURES/`
+- `docs/GLOSSARY.md` se novos termos virarem linguagem do produto
 
----
+## Etiqueta para contribuicoes
 
-## Etiqueta para contribuições
-
-- Mantenha a documentação sincronizada com o código.
-- Use a linguagem do produto (português brasileiro).
-- Referencie arquivos e symbols usando `code formatting` (ex: `RunnerView.vue`, `runRunnerLoop`).
-- Mantenha o foco em **contexto operacional**, não apenas especulação.
+- mantenha docs sincronizados com o estado real do codigo
+- prefira portugues brasileiro em linguagem de produto
+- documente regras, dependencias e riscos concretos
+- registre decisoes arquiteturais em `docs/DECISIONS/` quando a mudanca alterar contratos ou fluxo central

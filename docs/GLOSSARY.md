@@ -1,29 +1,44 @@
-# Glossário do Projeto
-
-Este glossário define termos usados no código e no jogo, principalmente relacionados ao módulo Runner.
+# Glossario do Projeto
 
 ## Termos Gerais
 
-- **Runner**: minijogo de corrida / coleta localizado em `/runner`.
-- **Round**: uma fase do jogo Runner (são 10 rounds planejados).
-- **HUD**: heads-up display, interface com informações de jogo (vidas, moedas, progresso).
-- **Card Educativo**: mensagem mostrada ao final do round, com aprendizado sobre sustentabilidade.
+- **Hub**: tela central do app com progresso, modulos, extras e acesso ao premium.
+- **Plus**: linguagem visual usada no Hub para o modulo premium.
+- **Galeria Encantada**: modulo premium acessado em `/galeria-encantada`.
+- **magicDust**: moeda local da `Galeria Encantada`, usada para revelar personagens no album.
+- **Destaque diario**: personagem misterioso do dia, com reward na primeira revelacao.
+- **Starter pack**: recompensa entregue no primeiro unlock do premium.
+- **HUD**: heads-up display, interface com informacoes de jogo.
+
+## Conceitos do premium
+
+- **Unlock status premium**: estado derivado do card `Plus` no Hub.
+  - `locked`
+  - `almost-unlocked`
+  - `just-unlocked`
+  - `available`
+  - `visited`
+- **Album**: grade de personagens bloqueados e desbloqueados da `Galeria Encantada`.
+- **Colecao**: agrupamento tematico interno do premium, usado para progresso visual.
 
 ## Conceitos do Runner
 
-- **ecoScore**: pontuação ambiental obtida ao coletar resíduos corretamente.
-- **carbonCredits**: créditos de carbono ganhos pela boa performance.
-- **qualifiedCollects**: número de itens coletados que foram considerados "qualificados" (corretos ou valiosos).
-- **shield**: recurso de proteção que evita perda de vida em uma colisão.
-- **emergencyHeal**: cura emergencial que pode restaurar uma vida em uma situação crítica.
-- **vehicle**: veículo selecionável com bônus e atributos (tier, custo, benefícios).
+- **Runner**: minijogo de corrida / coleta localizado em `/runner`.
+- **Round**: uma fase do jogo Runner.
+- **Card Educativo**: mensagem mostrada ao final do round, com aprendizado sobre sustentabilidade.
+- **ecoScore**: pontuacao ambiental obtida ao coletar residuos corretamente.
+- **carbonCredits**: creditos de carbono ganhos pela boa performance.
+- **qualifiedCollects**: numero de itens coletados que contam como coleta qualificada.
+- **shield**: recurso de protecao que evita perda de vida em uma colisao.
+- **emergencyHeal**: cura emergencial que pode restaurar uma vida em situacao critica.
+- **vehicle**: veiculo selecionavel com bonus e atributos.
 
 ## Estruturas de Dados
 
-- **RunnerGameState**: estado atual do jogo (status, player, stats, entidades etc.).
-- **RunnerRoundConfig**: configuração de parâmetros por round (duração, meta, velocidade, custos, etc.).
-- **RunnerWasteType**: definição de cada tipo de resíduo (valor, penalidades, tags).
-- **RunnerVehicle**: definição do veículo (custo, bônus, tier).
+- **RunnerGameState**: estado atual do Runner.
+- **RunnerRoundConfig**: configuracao de parametros por round.
+- **RunnerWasteType**: definicao de cada tipo de residuo.
+- **RunnerVehicle**: definicao de cada veiculo.
 - **RunnerRankingEntry**: registro de desempenho ao final de um round.
-
-> Nota: Nem todos os termos acima estão totalmente implementados atualmente; alguns existem no modelo de dados mas ainda não são usados no loop do jogo.
+- **MagicGalleryProgress**: progresso persistido do premium.
+- **MagicGalleryUnlockStatus**: contrato do estado visual e funcional do card premium no Hub.

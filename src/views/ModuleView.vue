@@ -192,6 +192,7 @@ import QuizOptionCard from '@/components/quiz/QuizOptionCard.vue'
 import { getModuleById } from '@/data/modules/modules.data'
 import { audioService } from '@/services/audio.service'
 import { celebrationService } from '@/services/celebration.service'
+import { magicGalleryProgressService } from '@/services/magicGalleryProgress.service'
 import { moduleProgressService } from '@/services/moduleProgress.service'
 import { moduleQuizService } from '@/services/moduleQuiz.service'
 import { playerProfileService } from '@/services/playerProfile.service'
@@ -357,6 +358,7 @@ function finishSession() {
   playerProfileService.addStars(summary.starsEarned)
   sessionSummary.value = summary
   syncProgress()
+  const premiumStatus = magicGalleryProgressService.syncUnlock(moduleProgressService.getAll())
   resetQuestionState()
 
   if (summary.completedModule) {
@@ -366,6 +368,16 @@ function finishSession() {
     } else {
       audioService.playSuccess()
     }
+
+    if (premiumStatus.status === 'just-unlocked') {
+      toast.add({
+        severity: 'success',
+        summary: 'Portal Plus liberado!',
+        detail: 'Volte ao hub para entrar na Galeria Encantada.',
+        life: 2800
+      })
+    }
+
     screenState.value = 'module-complete'
     return
   }

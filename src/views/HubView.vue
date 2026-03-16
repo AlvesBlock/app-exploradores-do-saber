@@ -112,6 +112,27 @@
         </div>
       </section>
 
+      <section class="hub-section premium-section">
+        <div class="section-heading">
+          <div>
+            <div class="kids-eyebrow">âœ¨ Espaco Plus</div>
+            <h2 class="kids-section-title">Recompensa premium do Hub</h2>
+          </div>
+          <p class="kids-section-copy">
+            Conclua os quatro mundos principais para revelar o portal especial do app.
+          </p>
+        </div>
+
+        <MagicGalleryHubCard
+          v-if="magicGalleryStatus"
+          :status="magicGalleryStatus"
+          :unlocked-characters="magicGalleryProgress.unlockedCharacterIds.length"
+          :total-characters="magicGalleryTotalCharacters"
+          :magic-dust="magicGalleryProgress.magicDust"
+          @open="openMagicGallery"
+        />
+      </section>
+
       <section class="kids-card quick-actions">
         <div>
           <div class="kids-eyebrow">⚡ Extras do app</div>
@@ -143,6 +164,14 @@
       </section>
     </div>
 
+    <MagicGalleryUnlockOverlay
+      :visible="showMagicGalleryUnlockOverlay"
+      :total-characters="magicGalleryTotalCharacters"
+      :magic-dust="magicGalleryProgress.magicDust"
+      @close="dismissMagicGalleryUnlock"
+      @open="enterMagicGalleryFromUnlock"
+    />
+
     <Toast />
   </div>
 </template>
@@ -154,12 +183,19 @@ import Button from 'primevue/button'
 import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
 
+import MagicGalleryHubCard from '@/components/magic-gallery/MagicGalleryHubCard.vue'
+import MagicGalleryUnlockOverlay from '@/components/magic-gallery/MagicGalleryUnlockOverlay.vue'
 import { getAvatarMeta } from '@/data/avatars/avatarOptions.data'
 import { gameModules } from '@/data/modules/modules.data'
+import { audioService } from '@/services/audio.service'
+import { celebrationService } from '@/services/celebration.service'
+import { magicGalleryContentService } from '@/services/magicGalleryContent.service'
+import { magicGalleryProgressService } from '@/services/magicGalleryProgress.service'
 import { moduleProgressService } from '@/services/moduleProgress.service'
 import { playerProfileService } from '@/services/playerProfile.service'
 import { petService } from '@/services/pet.service'
 import type { ModuleId, ModuleProgress } from '@/types/module'
+import type { MagicGalleryProgress, MagicGalleryUnlockStatus } from '@/types/magic-gallery'
 import type { PlayerProfile } from '@/types/player'
 
 const router = useRouter()
@@ -167,6 +203,10 @@ const toast = useToast()
 
 const profile = ref<PlayerProfile | null>(null)
 const progressList = ref<ModuleProgress[]>([])
+const magicGalleryStatus = ref<MagicGalleryUnlockStatus | null>(null)
+const magicGalleryProgress = ref<MagicGalleryProgress>(magicGalleryProgressService.get())
+const magicGalleryTotalCharacters = ref(magicGalleryContentService.getFallbackSnapshot().characters.length)
+const showMagicGalleryUnlockOverlay = ref(false)
 
 const avatarMeta = computed(() => getAvatarMeta(profile.value?.avatar))
 const overview = computed(() => moduleProgressService.getOverview())
@@ -206,6 +246,7 @@ function loadData() {
   playerProfileService.touchLastActive()
   profile.value = playerProfileService.get()
   progressList.value = moduleProgressService.getAll()
+  syncMagicGalleryState()
 }
 
 function changeProfile() {
@@ -224,8 +265,48 @@ function openPet() {
   router.push('/pet')
 }
 
+function syncMagicGalleryState() {
+  magicGalleryStatus.value = magicGalleryProgressService.syncUnlock(progressList.value)
+  magicGalleryProgress.value = magicGalleryProgressService.get()
+
+  if (magicGalleryStatus.value.status === 'just-unlocked') {
+    showMagicGalleryUnlockOverlay.value = true
+    celebrationService.fireModuleCompletion()
+    audioService.playCelebration()
+  }
+}
+
+function dismissMagicGalleryUnlock() {
+  showMagicGalleryUnlockOverlay.value = false
+  magicGalleryProgressService.markUnlockCelebrationSeen()
+  syncMagicGalleryState()
+}
+
+function enterMagicGalleryFromUnlock() {
+  dismissMagicGalleryUnlock()
+  router.push('/galeria-encantada')
+}
+
+function openMagicGallery() {
+  if (!magicGalleryStatus.value?.unlocked) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Portal bloqueado',
+      detail: 'Conclua todos os mundos para liberar a Galeria Encantada.',
+      life: 2400
+    })
+    return
+  }
+
+  magicGalleryProgressService.markUnlockCelebrationSeen()
+  magicGalleryProgressService.markVisited()
+  syncMagicGalleryState()
+  router.push('/galeria-encantada')
+}
+
 function resetProgress() {
   moduleProgressService.reset()
+  magicGalleryProgressService.reset()
   petService.reset()
 
   const currentProfile = playerProfileService.get()
@@ -238,11 +319,12 @@ function resetProgress() {
 
   progressList.value = moduleProgressService.getAll()
   profile.value = playerProfileService.get()
+  syncMagicGalleryState()
 
   toast.add({
     severity: 'success',
     summary: 'Jornada reiniciada',
-    detail: 'Os modulos foram resetados e o pet voltou ao inicio.',
+    detail: 'Os modulos, o premium e o pet voltaram ao inicio.',
     life: 2600
   })
 }
@@ -456,4 +538,3 @@ onMounted(() => {
   }
 }
 </style>
-
