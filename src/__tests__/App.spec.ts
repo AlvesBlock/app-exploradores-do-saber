@@ -1,11 +1,19 @@
-import { describe, it, expect } from 'vitest'
-
+import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import App from '../App.vue'
+import App from '@/App.vue'
 
 describe('App', () => {
-  it('mounts renders properly', () => {
-    const wrapper = mount(App)
-    expect(wrapper.text()).toContain('You did it!')
+  it('renders the router view shell', () => {
+    const wrapper = mount(App, {
+      global: {
+        stubs: {
+          RouterView: {
+            template: '<div data-test="router-view"></div>'
+          }
+        }
+      }
+    })
+
+    expect(wrapper.find('[data-test="router-view"]').exists()).toBe(true)
   })
 })

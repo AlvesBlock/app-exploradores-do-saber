@@ -1,0 +1,120 @@
+{
+  "cards": {
+    "victoryCards": [
+      {
+        "id": "victory_001",
+        "type": "victory",
+        "title": "Reciclar faz a diferença",
+        "subtitle": "Sua corrida ajudou a cidade a respirar melhor.",
+        "message": "Separar materiais recicláveis reduz o volume de resíduos enviados para aterros.",
+        "fact": "A reciclagem economiza matéria-prima e energia em diversos setores.",
+        "tip": "Em casa, crie recipientes separados para papel, plástico, metal e vidro.",
+        "category": "recycling",
+        "icon": "♻️",
+        "minRound": 1,
+        "maxRound": 10,
+        "tags": ["reciclagem", "economia_circular"]
+      },
+      {
+        "id": "victory_002",
+        "type": "victory",
+        "title": "Cidade limpa, rios mais saudáveis",
+        "subtitle": "Resíduo no lugar certo protege o caminho da água.",
+        "message": "Evitar descarte em vias públicas ajuda a reduzir entupimentos e enchentes.",
+        "fact": "Muito lixo urbano chega aos rios por meio de bueiros e canais.",
+        "tip": "Nunca jogue embalagem no chão. Ela pode seguir até o sistema de drenagem.",
+        "category": "urban_water",
+        "icon": "💧",
+        "minRound": 2,
+        "maxRound": 10,
+        "tags": ["agua", "cidade", "drenagem"]
+      },
+      {
+        "id": "victory_003",
+        "type": "victory",
+        "title": "Energia limpa move o futuro",
+        "subtitle": "Boas escolhas ambientais geram impacto positivo duradouro.",
+        "message": "Transportes mais eficientes e limpos ajudam a reduzir emissões e ruído nas cidades.",
+        "fact": "Mobilidade sustentável também melhora a qualidade de vida urbana.",
+        "tip": "Sempre que possível, combine caminhada, bicicleta e transporte coletivo.",
+        "category": "mobility",
+        "icon": "🚲",
+        "minRound": 4,
+        "maxRound": 10,
+        "tags": ["mobilidade", "energia_limpa", "baixo_carbono"]
+      },
+      {
+        "id": "victory_004",
+        "type": "victory",
+        "title": "Resíduo orgânico pode virar solução",
+        "subtitle": "Nem tudo precisa virar lixo.",
+        "message": "Materiais orgânicos podem ser transformados em adubo por compostagem.",
+        "fact": "A compostagem ajuda a reduzir resíduos e melhora a qualidade do solo.",
+        "tip": "Restos de frutas e verduras podem ser reaproveitados de forma ambientalmente correta.",
+        "category": "organic",
+        "icon": "🍂",
+        "minRound": 3,
+        "maxRound": 10,
+        "tags": ["organico", "compostagem", "solo"]
+      }
+    ],
+    "defeatCards": [
+      {
+        "id": "defeat_001",
+        "type": "defeat",
+        "title": "A poluição cobra um preço alto",
+        "subtitle": "Quando o lixo vai para o lugar errado, toda a cidade perde.",
+        "message": "Resíduos descartados incorretamente podem atingir rios, bueiros, ruas e áreas verdes.",
+        "fact": "Plásticos podem permanecer no ambiente por centenas de anos.",
+        "tip": "Evite descarte irregular e procure coleta seletiva sempre que possível.",
+        "category": "pollution",
+        "icon": "🌫️",
+        "minRound": 1,
+        "maxRound": 10,
+        "tags": ["poluicao", "descarte_irregular"]
+      },
+      {
+        "id": "defeat_002",
+        "type": "defeat",
+        "title": "Nem todo resíduo é inofensivo",
+        "subtitle": "Pilhas, baterias e eletrônicos precisam de cuidado especial.",
+        "message": "Resíduos perigosos descartados sem controle podem contaminar solo e água.",
+        "fact": "Alguns materiais possuem componentes tóxicos que exigem logística reversa.",
+        "tip": "Pilhas, lâmpadas e eletrônicos devem ir para pontos específicos de coleta.",
+        "category": "hazardous",
+        "icon": "🔋",
+        "minRound": 3,
+        "maxRound": 10,
+        "tags": ["residuo_perigoso", "solo", "agua"]
+      },
+      {
+        "id": "defeat_003",
+        "type": "defeat",
+        "title": "Mais lixo, menos biodiversidade",
+        "subtitle": "O ambiente natural sente os efeitos do descarte errado.",
+        "message": "Animais podem se ferir, ingerir resíduos ou perder habitat por causa da poluição.",
+        "fact": "Vidro, plástico e outros materiais abandonados afetam ecossistemas urbanos e naturais.",
+        "tip": "Pequenas atitudes diárias ajudam a proteger fauna e flora.",
+        "category": "biodiversity",
+        "icon": "🐢",
+        "minRound": 4,
+        "maxRound": 10,
+        "tags": ["fauna", "flora", "biodiversidade"]
+      },
+      {
+        "id": "defeat_004",
+        "type": "defeat",
+        "title": "Desperdício também é impacto ambiental",
+        "subtitle": "Quando algo reciclável é perdido, recursos também são perdidos.",
+        "message": "Materiais reaproveitáveis jogados fora exigem extração de novos recursos naturais.",
+        "fact": "Reciclar e reutilizar ajudam a reduzir pressão sobre o planeta.",
+        "tip": "Antes de descartar, pense: isso pode ser reutilizado, reciclado ou separado melhor?",
+        "category": "waste",
+        "icon": "🗑️",
+        "minRound": 2,
+        "maxRound": 10,
+        "tags": ["desperdicio", "recursos_naturais", "reuso"]
+      }
+    ]
+  }
+}

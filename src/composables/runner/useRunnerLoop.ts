@@ -1,265 +1,441 @@
 import { onBeforeUnmount, ref } from 'vue'
-import { createCollectibleEntity, createObstacleEntity } from '@/engine/runner/entities'
-import type { RunnerEntity, RunnerGameState } from '@/types/runner'
+import {
+  buildRunnerDifficultySnapshot,
+  estimateTargetDistance
+} from '@/engine/runner/runtime/difficulty'
+import {
+  createRunnerSpawnRuntime,
+  resetRunnerSpawnRuntime,
+  updateRunnerSpawnRuntime
+} from '@/engine/runner/runtime/spawn-manager'
+import { resolveRunnerCollision } from '@/engine/runner/runtime/collision'
+import {
+  applyRoundConfigToState,
+  buildRoundSummaryText,
+  finalizeRoundState,
+  syncRunnerPersistentProgress
+} from '@/engine/runner/utils/round-state'
+import {
+  activateShield as activateRunnerShield,
+  addRunnerScore,
+  canActivateShield,
+  restoreOneLife,
+  spendRunnerCoins
+} from '@/engine/runner/utils/state-mutations'
+import { canUseEmergencyHeal, getVehicleById } from '@/engine/runner/utils/progression'
+import { getRunnerRoundConfig, RUNNER_ROUNDS } from '@/engine/runner/data/rounds'
+import { playerProfileService } from '@/services/playerProfile.service'
+import { runnerProgressService } from '@/services/runnerProgress.service'
+import type {
+  RunnerFeedbackEvent,
+  RunnerPersistentProgress,
+  RunnerRoundEndReason,
+  RunnerRoundSummary
+} from '@/types/runner-game'
+import type { RunnerEntity, RunnerGameState } from '@/types/runner-state'
 
 interface RunnerLoopCallbacks {
-    onFrame?: (deltaMs: number) => void
-    onCollect?: () => void
-    onHit?: () => void
+  onFrame?: (deltaMs: number) => void
+  onFeedback?: (event: RunnerFeedbackEvent) => void
+  onRoundEnd?: (summary: RunnerRoundSummary) => void
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value))
+}
+
+function setFeedback(
+  gameState: RunnerGameState,
+  callbacks: RunnerLoopCallbacks,
+  event: RunnerFeedbackEvent
+) {
+  gameState.ui.lastFeedback = event
+  callbacks.onFeedback?.(event)
+}
+
+function getProgressRatio(gameState: RunnerGameState): number {
+  const durationMs = gameState.roundProgress.currentRoundConfig.durationSeconds * 1000
+
+  if (durationMs <= 0) {
+    return 0
+  }
+
+  return clamp(gameState.telemetry.elapsedMs / durationMs, 0, 1)
+}
+
+function getCollisionZone(entity: RunnerEntity): boolean {
+  return entity.depth >= 0.94 && entity.depth <= 1.05
 }
 
 export function useRunnerLoop(
-    gameState: RunnerGameState,
-    callbacks: RunnerLoopCallbacks = {}
+  gameState: RunnerGameState,
+  callbacks: RunnerLoopCallbacks = {}
 ) {
-    const frameId = ref<number | null>(null)
-    const lastTime = ref<number>(0)
-    const spawnTimer = ref<number>(0)
+  const frameId = ref<number | null>(null)
+  const lastTime = ref<number>(0)
+  const spawnRuntime = createRunnerSpawnRuntime()
 
-    function spawnEntity() {
-        const shouldSpawnCollectible = Math.random() > 0.45
-        const entity = shouldSpawnCollectible
-            ? createCollectibleEntity()
-            : createObstacleEntity()
+  syncRunnerPersistentProgress(gameState, runnerProgressService.get())
+  applyRoundConfigToState(gameState, gameState.roundProgress.currentRound)
 
-        gameState.entities.push(entity)
+  function getPersistentProgress(): RunnerPersistentProgress {
+    const progress = runnerProgressService.get()
+    syncRunnerPersistentProgress(gameState, progress)
+    return progress
+  }
+
+  function updateDifficultyAndProgress(deltaMs: number) {
+    gameState.telemetry.elapsedMs += deltaMs
+    gameState.stats.elapsedSeconds = Number((gameState.telemetry.elapsedMs / 1000).toFixed(1))
+    gameState.stats.timeLeft = Math.max(
+      0,
+      Number(
+        (
+          gameState.roundProgress.currentRoundConfig.durationSeconds -
+          gameState.telemetry.elapsedMs / 1000
+        ).toFixed(2)
+      )
+    )
+
+    const progressRatio = getProgressRatio(gameState)
+    const difficultySnapshot = buildRunnerDifficultySnapshot(
+      gameState.roundProgress.currentRoundConfig,
+      progressRatio,
+      gameState.player.shieldActive
+    )
+
+    gameState.stats.phaseLevel = difficultySnapshot.phaseLevel
+    gameState.stats.speed = difficultySnapshot.speed
+
+    const distanceGain = (deltaMs / 1000) * (13.5 + difficultySnapshot.speed * 7.5)
+    gameState.stats.distance = Math.min(
+      gameState.stats.targetDistance,
+      Number((gameState.stats.distance + distanceGain).toFixed(2))
+    )
+
+    addRunnerScore(gameState, Math.round((deltaMs / 1000) * (3 + difficultySnapshot.speed * 1.8)))
+
+    return difficultySnapshot
+  }
+
+  function updateShield(deltaMs: number) {
+    if (!gameState.player.shieldActive) {
+      return
     }
 
-    function updateDifficulty() {
-        const progressRatio = gameState.stats.distance / gameState.stats.targetDistance
+    gameState.player.shieldTimeLeft = Math.max(
+      0,
+      Number((gameState.player.shieldTimeLeft - deltaMs / 1000).toFixed(2))
+    )
 
-        if (progressRatio >= 0.66) {
-            gameState.stats.phaseLevel = 3
-            gameState.stats.speed = 1.15
-        } else if (progressRatio >= 0.33) {
-            gameState.stats.phaseLevel = 2
-            gameState.stats.speed = 1
-        } else {
-            gameState.stats.phaseLevel = 1
-            gameState.stats.speed = 0.85
-        }
-
-        if (gameState.player.turboActive) {
-            gameState.stats.speed += 0.65
-        }
+    if (gameState.player.shieldTimeLeft <= 0) {
+      gameState.player.shieldActive = false
+      gameState.player.shieldTimeLeft = 0
     }
+  }
 
-    function updateTurbo(deltaMs: number) {
-        if (!gameState.player.turboActive) return
+  function updateEntities(deltaMs: number, entityMovement: number) {
+    const movement = (deltaMs / 16.67) * entityMovement
 
-        gameState.player.turboTimeLeft = Math.max(
-            0,
-            Number(((gameState.player.turboTimeLeft ?? 0) - deltaMs / 1000).toFixed(2))
-        )
-
-        if ((gameState.player.turboTimeLeft ?? 0) <= 0) {
-            gameState.player.turboActive = false
-            gameState.player.turboTimeLeft = 0
-        }
-    }
-
-    function updateEntities(deltaMs: number) {
-        const movement = (deltaMs / 16.67) * gameState.stats.speed * 0.015
-
-        gameState.entities.forEach((entity) => {
-            entity.depth += movement
-        })
-
-        gameState.entities = gameState.entities.filter(
-            (entity) => entity.depth < 1.28 && entity.active
-        )
-    }
-
-    function updateRoadMarkers(deltaMs: number) {
-        const markerSpeedBase = 0.012
-        const turboBoost = gameState.player.turboActive ? 0.01 : 0
-        const movement = (deltaMs / 16.67) * (markerSpeedBase + gameState.stats.speed * 0.01 + turboBoost)
-
-        gameState.roadMarkers!.forEach((marker) => {
-            marker.depth += movement
-
-            if (marker.depth > 1.02) {
-                marker.depth = 0.02
-            }
-        })
-    }
-
-    function processCollisions() {
-        gameState.entities.forEach((entity: RunnerEntity) => {
-            const sameLane = entity.lane === gameState.player.lane
-            const collisionZone = entity.depth >= 0.93 && entity.depth <= 1.08
-
-            if (!sameLane || !collisionZone || !entity.active) return
-
-            entity.active = false
-
-            if (entity.type === 'collectible') {
-                gameState.stats.coins += 1
-                gameState.stats.collectedCount += 1
-                gameState.stats.score += 25
-                gameState.player.turboCharge = Math.min(
-                    10,
-                    (gameState.player.turboCharge ?? 0) + 1
-                )
-                callbacks.onCollect?.()
-                return
-            }
-
-            if (entity.type === 'obstacle') {
-                gameState.stats.lives -= 1
-                gameState.stats.score = Math.max(0, gameState.stats.score - 20)
-                callbacks.onHit?.()
-
-                if (gameState.stats.lives <= 0) {
-                    gameState.stats.lives = 0
-                    gameState.status = 'gameover'
-                    stop()
-                }
-            }
-        })
-    }
-
-    function tick(now: number) {
-        if (gameState.status !== 'running') return
-
-        const deltaMs = lastTime.value ? now - lastTime.value : 16
-        lastTime.value = now
-
-        updateDifficulty()
-        updateRoadMarkers(deltaMs)
-        updateTurbo(deltaMs)
-
-        const speedFactor = gameState.stats.speed
-        const distanceGain = (deltaMs / 16.67) * speedFactor * 0.9
-        const scoreGain = Math.floor((deltaMs / 16.67) * speedFactor * 0.7)
-        const timeLoss = deltaMs / 1000
-
-        gameState.stats.distance += Number(distanceGain.toFixed(2))
-        gameState.stats.score += scoreGain
-        gameState.stats.timeLeft = Math.max(
-            0,
-            Number((gameState.stats.timeLeft - timeLoss).toFixed(2))
-        )
-
-        if (gameState.stats.timeLeft <= 0) {
-            gameState.status = 'gameover'
-            stop()
-            return
-        }
-
-        spawnTimer.value += deltaMs
-        if (spawnTimer.value >= 650) {
-            spawnEntity()
-            spawnTimer.value = 0
-        }
-
-        updateEntities(deltaMs)
-        processCollisions()
-
-        if (gameState.stats.distance >= gameState.stats.targetDistance) {
-            gameState.stats.distance = gameState.stats.targetDistance
-
-            if (gameState.stats.collectedCount >= gameState.stats.minCollectibles) {
-                gameState.status = 'victory'
-            } else {
-                gameState.status = 'gameover'
-            }
-
-            stop()
-            return
-        }
-
-        callbacks.onFrame?.(deltaMs)
-
-        frameId.value = requestAnimationFrame(tick)
-    }
-
-    function start() {
-        if (gameState.status === 'running') return
-
-        gameState.status = 'running'
-        lastTime.value = 0
-        frameId.value = requestAnimationFrame(tick)
-    }
-
-    function pause() {
-        if (gameState.status !== 'running') return
-        gameState.status = 'paused'
-        stop()
-    }
-
-    function resume() {
-        if (gameState.status !== 'paused') return
-        start()
-    }
-
-    function stop() {
-        if (frameId.value !== null) {
-            cancelAnimationFrame(frameId.value)
-            frameId.value = null
-        }
-    }
-
-    function activateTurbo() {
-        if ((gameState.player.turboCharge ?? 0) < 10) return false
-        if (gameState.player.turboActive) return false
-
-        gameState.player.turboCharge = 0
-        gameState.player.turboActive = true
-        gameState.player.turboTimeLeft = 4
-        return true
-    }
-
-    function upgradeVehicle(nextCost: number) {
-        if (gameState.stats.coins < nextCost) return false
-        gameState.stats.coins -= nextCost
-        gameState.player.vehicleLevel += 1
-        return true
-    }
-
-    function reset() {
-        stop()
-        spawnTimer.value = 0
-        gameState.status = 'idle'
-        gameState.player.lane = 1
-        gameState.player.isJumping = false
-        gameState.player.jumpProgress = 0
-        gameState.player.vehicleLevel = 0
-        gameState.player.isInvulnerable = false
-        gameState.player.turboActive = false
-        gameState.player.turboCharge = 0
-        gameState.player.turboTimeLeft = 0
-
-        gameState.stats.score = 0
-        gameState.stats.coins = 0
-        gameState.stats.lives = 3
-        gameState.stats.distance = 0
-        gameState.stats.targetDistance = 3000
-        gameState.stats.speed = 0.85
-        gameState.stats.timeLeft = 75
-        gameState.stats.minCollectibles = 10
-        gameState.stats.collectedCount = 0
-        gameState.stats.phaseLevel = 1
-
-        gameState.entities = []
-
-        gameState.roadMarkers = Array.from({ length: 9 }, (_, index) => ({
-            id: `marker-${index + 1}`,
-            depth: index / 9
-        }))
-    }
-
-    onBeforeUnmount(() => {
-        stop()
+    gameState.entities.forEach((entity) => {
+      entity.depth += movement
     })
 
-    return {
-        start,
-        pause,
-        resume,
-        reset,
-        stop,
-        activateTurbo,
-        upgradeVehicle
+    gameState.entities = gameState.entities.filter((entity) => entity.depth < 1.24 && entity.active)
+  }
+
+  function updateRoadMarkers(deltaMs: number, roadMovement: number) {
+    const movement = (deltaMs / 16.67) * roadMovement
+
+    gameState.roadMarkers.forEach((marker) => {
+      marker.depth += movement
+
+      if (marker.depth > 1.02) {
+        marker.depth = 0.02
+      }
+    })
+  }
+
+  function handleRoundEnd(endReason: RunnerRoundEndReason) {
+    const playerName = playerProfileService.get()?.name ?? 'Jogador'
+    const { result, finalCard, rankingEntry, summary } = finalizeRoundState(
+      gameState,
+      playerName,
+      endReason
+    )
+    const progressResult = runnerProgressService.applyRoundRewards({
+      coinsEarned: result.coinsEarned,
+      carbonCreditsEarned: result.carbonCreditsEarned,
+      roundNumber: gameState.roundProgress.currentRound,
+      victoryAchieved: result.victoryAchieved,
+      rankingEntry
+    })
+
+    summary.newlyUnlockedVehicleIds = progressResult.newlyUnlockedVehicleIds
+    summary.nextRoundUnlocked = progressResult.nextRoundUnlocked
+    summary.canAdvanceToNextRound =
+      result.victoryAchieved &&
+      gameState.roundProgress.currentRound < progressResult.progress.highestUnlockedRound
+
+    syncRunnerPersistentProgress(gameState, progressResult.progress)
+
+    gameState.stats.score = result.scoreFinal
+    gameState.roundProgress.roundCompleted = true
+    gameState.roundProgress.completionStatus = result.completionStatus
+    gameState.roundProgress.endReason = endReason
+    gameState.roundProgress.finalCard = finalCard
+    gameState.roundProgress.finalRankingEntry = rankingEntry
+    gameState.roundProgress.finalResult = summary
+    gameState.roundProgress.finalSummaryText = buildRoundSummaryText(summary)
+
+    callbacks.onRoundEnd?.(summary)
+  }
+
+  function processCollisions() {
+    gameState.entities.forEach((entity) => {
+      const sameLane = entity.lane === gameState.player.lane
+
+      if (!sameLane || !getCollisionZone(entity) || !entity.active) {
+        return
+      }
+
+      entity.active = false
+      const result = resolveRunnerCollision(gameState, entity)
+
+      if (entity.type === 'collectible' && gameState.telemetry.firstCollectAtMs === null) {
+        gameState.telemetry.firstCollectAtMs = gameState.telemetry.elapsedMs
+      }
+
+      if (entity.type === 'obstacle' && result.lifeLost && gameState.telemetry.firstCollisionAtMs === null) {
+        gameState.telemetry.firstCollisionAtMs = gameState.telemetry.elapsedMs
+      }
+
+      if (result.feedback) {
+        setFeedback(gameState, callbacks, result.feedback)
+      }
+
+      if (gameState.stats.lives <= 0) {
+        gameState.stats.lives = 0
+        gameState.status = 'gameover'
+        stop()
+        handleRoundEnd('lives_depleted')
+      }
+    })
+  }
+
+  function evaluateRoundCompletion() {
+    if (gameState.status !== 'running') {
+      return
     }
+
+    const reachedDistance = gameState.stats.distance >= gameState.stats.targetDistance
+    const timeExpired = gameState.stats.timeLeft <= 0
+
+    if (!reachedDistance && !timeExpired) {
+      return
+    }
+
+    gameState.stats.distance = gameState.stats.targetDistance
+    const qualifiedEnough = gameState.stats.qualifiedCollects >= gameState.stats.minCollectibles
+    const victory = qualifiedEnough && gameState.stats.lives > 0
+    const endReason: RunnerRoundEndReason = victory ? 'victory' : 'missed_target'
+
+    gameState.status = victory ? 'victory' : 'gameover'
+    stop()
+    handleRoundEnd(endReason)
+  }
+
+  function tick(now: number) {
+    if (gameState.status !== 'running') {
+      return
+    }
+
+    const deltaMs = lastTime.value ? now - lastTime.value : 16
+    lastTime.value = now
+
+    const difficultySnapshot = updateDifficultyAndProgress(deltaMs)
+    updateRoadMarkers(deltaMs, difficultySnapshot.roadMovement)
+    updateShield(deltaMs)
+    updateRunnerSpawnRuntime(gameState, spawnRuntime, difficultySnapshot, deltaMs)
+    updateEntities(deltaMs, difficultySnapshot.entityMovement)
+    processCollisions()
+    evaluateRoundCompletion()
+
+    callbacks.onFrame?.(deltaMs)
+
+    if (gameState.status === 'running') {
+      frameId.value = requestAnimationFrame(tick)
+    }
+  }
+
+  function start() {
+    if (gameState.status === 'running') {
+      return
+    }
+
+    gameState.status = 'running'
+    lastTime.value = 0
+    frameId.value = requestAnimationFrame(tick)
+  }
+
+  function pause() {
+    if (gameState.status !== 'running') {
+      return
+    }
+
+    gameState.status = 'paused'
+    stop()
+  }
+
+  function resume() {
+    if (gameState.status !== 'paused') {
+      return
+    }
+
+    start()
+  }
+
+  function stop() {
+    if (frameId.value !== null) {
+      cancelAnimationFrame(frameId.value)
+      frameId.value = null
+    }
+  }
+
+  function activateShield() {
+    const activated = activateRunnerShield(gameState)
+
+    if (activated) {
+      setFeedback(gameState, callbacks, {
+        kind: 'shield',
+        tone: 'neutral',
+        text: 'Escudo ativado: agora voce pode segurar uma colisao ou coletar itens arriscados.',
+        icon: '🛡️'
+      })
+    }
+
+    return activated
+  }
+
+  function useEmergencyHeal() {
+    const roundConfig = gameState.roundProgress.currentRoundConfig
+    const result = canUseEmergencyHeal({
+      currentLives: gameState.stats.lives,
+      currentCoins: gameState.stats.coins,
+      healCost: roundConfig.emergencyHealCost,
+      timeRemainingSeconds: gameState.stats.timeLeft,
+      roundDurationSeconds: roundConfig.durationSeconds,
+      alreadyUsedEmergencyHeal: gameState.player.emergencyHealUsed
+    })
+
+    if (!result.allowed) {
+      return false
+    }
+
+    spendRunnerCoins(gameState, roundConfig.emergencyHealCost)
+    restoreOneLife(gameState)
+    gameState.player.emergencyHealUsed = true
+    setFeedback(gameState, callbacks, {
+      kind: 'heal',
+      tone: 'positive',
+      text: 'Cura emergencial usada. Ultima chance de fechar a rodada.',
+      icon: '❤️'
+    })
+    return true
+  }
+
+  function reset(roundNumber = gameState.roundProgress.currentRound) {
+    stop()
+    resetRunnerSpawnRuntime(spawnRuntime)
+    gameState.status = 'idle'
+    applyRoundConfigToState(gameState, roundNumber)
+    getPersistentProgress()
+  }
+
+  function selectRound(roundNumber: number) {
+    if (gameState.status === 'running') {
+      return false
+    }
+
+    if (roundNumber < 1 || roundNumber > gameState.meta.highestUnlockedRound) {
+      return false
+    }
+
+    reset(roundNumber)
+    return true
+  }
+
+  function selectVehicle(vehicleId: string) {
+    if (!gameState.meta.unlockedVehicleIds.includes(vehicleId)) {
+      return false
+    }
+
+    const progress = runnerProgressService.selectVehicle(vehicleId)
+    syncRunnerPersistentProgress(gameState, progress)
+    const vehicle = getVehicleById(vehicleId)
+
+    if (gameState.status !== 'running' && vehicle) {
+      setFeedback(gameState, callbacks, {
+        kind: 'round',
+        tone: 'neutral',
+        text: `Veiculo selecionado: ${vehicle.name}.`,
+        icon: vehicle.emoji
+      })
+    }
+
+    return true
+  }
+
+  function advanceToNextRound() {
+    const nextRound = Math.min(
+      RUNNER_ROUNDS.length,
+      gameState.roundProgress.currentRound + 1
+    )
+
+    if (nextRound > gameState.meta.highestUnlockedRound) {
+      return false
+    }
+
+    reset(nextRound)
+    return true
+  }
+
+  function reloadPersistentProgress() {
+    syncRunnerPersistentProgress(gameState, runnerProgressService.get())
+    const desiredRound = clamp(
+      gameState.roundProgress.currentRound,
+      1,
+      gameState.meta.highestUnlockedRound
+    )
+
+    if (gameState.status !== 'running') {
+      applyRoundConfigToState(gameState, desiredRound)
+    }
+  }
+
+  function getRoundTitle(roundNumber = gameState.roundProgress.currentRound) {
+    return getRunnerRoundConfig(roundNumber).title
+  }
+
+  onBeforeUnmount(() => {
+    stop()
+  })
+
+  return {
+    start,
+    pause,
+    resume,
+    reset,
+    stop,
+    activateShield,
+    canActivateShield: () => canActivateShield(gameState),
+    useEmergencyHeal,
+    selectRound,
+    selectVehicle,
+    advanceToNextRound,
+    reloadPersistentProgress,
+    getPersistentProgress,
+    getRoundTitle,
+    getEstimatedTargetDistance: estimateTargetDistance
+  }
 }
