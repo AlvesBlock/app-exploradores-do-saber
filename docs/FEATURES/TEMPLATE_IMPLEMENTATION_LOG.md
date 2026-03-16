@@ -7,18 +7,23 @@
 ## Objetivo
 
 ## Mudanças Implementadas
-- 
+
+-
 
 ## Arquivos Alterados
-- 
+
+-
 
 ## Testes Executados
-- 
+
+-
 
 ## Problemas Encontrados
-- 
+
+-
 
 ## Próximos Passos
-- 
+
+-
 
 ## Notas Adicionais

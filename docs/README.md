@@ -1,6 +1,6 @@
 # Documentação do Projeto: Exploradores do Saber
 
-Bem-vindo à documentação do *Exploradores do Saber* — um aplicativo educativo gamificado com foco em aprendizagem ambiental, jogos educativos e progresso estruturado.
+Bem-vindo à documentação do _Exploradores do Saber_ — um aplicativo educativo gamificado com foco em aprendizagem ambiental, jogos educativos e progresso estruturado.
 
 > 🧠 **Propósito**: fornecer contexto técnico e operacional para desenvolvedores humanos e assistentes de IA para trabalhar de forma segura, consistente e produtiva neste projeto.
 
@@ -23,6 +23,7 @@ Bem-vindo à documentação do *Exploradores do Saber* — um aplicativo educati
 Sempre que uma alteração significativa for feita no código (novas features, refatoração, correção de bugs), **a documentação deve ser atualizada** para refletir o estado real do projeto e as decisões tomadas.
 
 Para alterações pequenas, inclua pelo menos um parágrafo em:
+
 - `docs/PROJECT_OVERVIEW.md` (modificações na estrutura ou stack)
 - `docs/ARCHITECTURE.md` (mudanças na organização em camadas)
 - `docs/GAME/...` (qualquer mudança no comportamento do jogo)
@@ -32,6 +33,6 @@ Para alterações pequenas, inclua pelo menos um parágrafo em:
 ## Etiqueta para contribuições
 
 - Mantenha a documentação sincronizada com o código.
-- Use a linguagem do produto (português brasileiro).  
+- Use a linguagem do produto (português brasileiro).
 - Referencie arquivos e symbols usando `code formatting` (ex: `RunnerView.vue`, `runRunnerLoop`).
 - Mantenha o foco em **contexto operacional**, não apenas especulação.

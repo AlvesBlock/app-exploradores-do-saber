@@ -3,6 +3,7 @@
 Este diretório contém documentação dedicada ao **Runner**: o minijogo de reciclagem e sustentabilidade.
 
 ## Estrutura
+
 - `PRD_RUNNER.md` – especificação de produto.
 - `GAME_DESIGN_RUNNER.md` – filosofia e mecânicas de jogo.
 - `GAME_ECONOMY_RUNNER.md` – regras de economia, moedas, créditos e progressão.

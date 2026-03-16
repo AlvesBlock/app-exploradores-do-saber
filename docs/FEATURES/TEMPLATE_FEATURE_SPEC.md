@@ -7,23 +7,29 @@
 ## 3. Contexto / Motivação
 
 ## 4. Requisitos
+
 - [ ] Requisito 1
 - [ ] Requisito 2
 
 ## 5. Escopo
+
 ### Incluído
-- 
+
+-
 
 ### Excluído
-- 
+
+-
 
 ## 6. Wireframes / Fluxo
 
 ## 7. Critérios de Aceitação
+
 - [ ] Critério 1
 - [ ] Critério 2
 
 ## 8. Impacto nos Arquivos / Áreas
+
 - `src/...`
 
 ## 9. Riscos / Débitos Técnicos

@@ -1,6 +1,6 @@
 # Decisões Arquiteturais (ADR)
 
-Este diretório contém *Architectural Decision Records* (ADRs) que documentam decisões importantes tomadas ao longo do desenvolvimento.
+Este diretório contém _Architectural Decision Records_ (ADRs) que documentam decisões importantes tomadas ao longo do desenvolvimento.
 
 Cada arquivo deve seguir o formato `ADR-<número>-<assunto>.md`.
 

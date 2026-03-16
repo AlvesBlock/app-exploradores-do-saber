@@ -55,9 +55,9 @@ function clamp(value: number, min: number, max: number): number {
 function getMaxRarityIndex(roundNumber: number, phaseLevel: RunnerPhaseLevel): number {
   const baseIndex =
     roundNumber >= 9 ? 3 :
-    roundNumber >= 6 ? 2 :
-    roundNumber >= 3 ? 1 :
-    0
+      roundNumber >= 6 ? 2 :
+        roundNumber >= 3 ? 1 :
+          0
 
   const phaseBonus = phaseLevel === 3 ? 1 : 0
   return Math.min(WASTE_RARITY_ORDER.length - 1, baseIndex + phaseBonus)
