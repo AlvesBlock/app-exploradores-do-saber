@@ -31,6 +31,8 @@ Toda mudanca relevante no modulo Runner deve ser registrada aqui.
 - HUD mostra tempo, progresso, score e carga de escudo.
 - Overlay final mostra score, recompensa, card educativo e unlocks.
 - O overlay inicial ganhou selecao de round e veiculo.
+- O overlay inicial agora usa card mobile-first com scroll interno e CTA principal fixado no rodape de acao.
+- O dock inferior foi reorganizado para separar movimento e acoes, preservando uma safe area livre para a pista e para o avatar.
 - Audio agora diferencia coleta, erro, bloqueio, cura e fim de round, com musica de fundo por fase do jogo.
 
 ### Qualidade

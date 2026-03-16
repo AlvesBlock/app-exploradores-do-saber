@@ -108,75 +108,83 @@
       </div>
 
       <div v-if="showStartOverlay" class="runner-start-overlay">
-        <div class="runner-panel">
-          <div class="runner-chip">Modo Arcade</div>
-          <h1>Runner da Reciclagem</h1>
-          <p>
-            Leia a pista, colete reciclaveis qualificados e use o escudo para transformar itens
-            arriscados em recompensa.
-          </p>
-
-          <div class="selector-row">
-            <button
-              class="selector-btn"
-              :disabled="!canSelectPreviousRound"
-              @click="changeRound(-1)"
-            >
-              &lt;
-            </button>
-            <div class="selector-summary">
-              <strong>Round {{ gameState.roundProgress.currentRound }}</strong>
-              <span>{{ gameState.roundProgress.currentRoundConfig.title }}</span>
-              <small>{{ gameState.roundProgress.currentRoundConfig.notes }}</small>
-            </div>
-            <button class="selector-btn" :disabled="!canSelectNextRound" @click="changeRound(1)">
-              &gt;
-            </button>
+        <div class="runner-panel runner-start-panel">
+          <div class="runner-start-header">
+            <div class="runner-chip">Modo Arcade</div>
+            <h1>Runner da Reciclagem</h1>
+            <p>
+              Leia a pista, colete reciclaveis qualificados e use o escudo para transformar itens
+              arriscados em recompensa.
+            </p>
           </div>
 
-          <div class="start-stats">
-            <span>Meta {{ gameState.stats.minCollectibles }}</span>
-            <span>Escudo {{ gameState.player.shieldChargeNeeded }}</span>
-            <span>Tempo {{ gameState.roundProgress.currentRoundConfig.durationSeconds }}s</span>
-            <span
-              >Banco {{ gameState.meta.walletCoins }} /
-              {{ gameState.meta.walletCarbonCredits }}</span
-            >
+          <div class="runner-start-scroll">
+            <div class="selector-row">
+              <button
+                class="selector-btn"
+                :disabled="!canSelectPreviousRound"
+                @click="changeRound(-1)"
+              >
+                &lt;
+              </button>
+              <div class="selector-summary">
+                <strong>Round {{ gameState.roundProgress.currentRound }}</strong>
+                <span>{{ gameState.roundProgress.currentRoundConfig.title }}</span>
+                <small>{{ gameState.roundProgress.currentRoundConfig.notes }}</small>
+              </div>
+              <button class="selector-btn" :disabled="!canSelectNextRound" @click="changeRound(1)">
+                &gt;
+              </button>
+            </div>
+
+            <div class="start-stats">
+              <span>Meta {{ gameState.stats.minCollectibles }}</span>
+              <span>Escudo {{ gameState.player.shieldChargeNeeded }}</span>
+              <span>Tempo {{ gameState.roundProgress.currentRoundConfig.durationSeconds }}s</span>
+              <span
+                >Banco {{ gameState.meta.walletCoins }} /
+                {{ gameState.meta.walletCarbonCredits }}</span
+              >
+            </div>
+
+            <div class="vehicle-grid">
+              <button
+                v-for="vehicle in availableVehicles"
+                :key="vehicle.id"
+                class="vehicle-chip"
+                :class="{ active: vehicle.id === gameState.meta.selectedVehicleId }"
+                @click="chooseVehicle(vehicle.id)"
+              >
+                <span>{{ vehicle.emoji }}</span>
+                <span>{{ vehicle.name }}</span>
+              </button>
+            </div>
+
+            <div class="goal-grid">
+              <div>
+                <strong>Coletar</strong>
+                <span>Itens bons contam. Itens de risco rendem melhor com escudo.</span>
+              </div>
+              <div>
+                <strong>Evitar</strong>
+                <span>Obstaculos custam vida, score e controle do round.</span>
+              </div>
+              <div>
+                <strong>Fechar</strong>
+                <span>Chegue ao fim do percurso batendo a meta de coleta.</span>
+              </div>
+            </div>
           </div>
 
-          <div class="vehicle-grid">
-            <button
-              v-for="vehicle in availableVehicles"
-              :key="vehicle.id"
-              class="vehicle-chip"
-              :class="{ active: vehicle.id === gameState.meta.selectedVehicleId }"
-              @click="chooseVehicle(vehicle.id)"
-            >
-              <span>{{ vehicle.emoji }}</span>
-              <span>{{ vehicle.name }}</span>
-            </button>
-          </div>
-
-          <div class="goal-grid">
-            <div>
-              <strong>Coletar</strong>
-              <span>Itens bons contam. Itens de risco rendem melhor com escudo.</span>
-            </div>
-            <div>
-              <strong>Evitar</strong>
-              <span>Obstaculos custam vida, score e controle do round.</span>
-            </div>
-            <div>
-              <strong>Fechar</strong>
-              <span>Chegue ao fim do percurso batendo a meta de coleta.</span>
+          <div class="runner-start-actions">
+            <button class="primary-cta" @click="startExperience">Jogar agora</button>
+            <div class="runner-start-secondary">
+              <button class="secondary-cta" @click="enableMotionControl">
+                {{ motionEnabled ? 'Sensor ativado' : 'Ativar controle por movimento' }}
+              </button>
+              <button class="ghost-cta" @click="goHub">Voltar ao hub</button>
             </div>
           </div>
-
-          <button class="primary-cta" @click="startExperience">Jogar agora</button>
-          <button class="secondary-cta" @click="enableMotionControl">
-            {{ motionEnabled ? 'Sensor ativado' : 'Ativar controle por movimento' }}
-          </button>
-          <button class="ghost-cta" @click="goHub">Voltar ao hub</button>
         </div>
       </div>
 
@@ -274,26 +282,45 @@
       </div>
 
       <div v-if="isPlaying" class="runner-controls">
-        <button class="control-btn" @touchstart.prevent="moveLeft" @click="moveLeft">&lt;</button>
-        <button
-          class="control-btn shield"
-          :disabled="!canActivateShield"
-          @touchstart.prevent="useShield"
-          @click="useShield"
-        >
-          <span>Shield</span>
-          <small>{{ shieldChargePercent }}%</small>
-        </button>
-        <button
-          class="control-btn heal"
-          :disabled="!canUseEmergencyHealNow"
-          @touchstart.prevent="useHeal"
-          @click="useHeal"
-        >
-          <span>Heal</span>
-          <small>{{ emergencyHealCostLabel }}</small>
-        </button>
-        <button class="control-btn" @touchstart.prevent="moveRight" @click="moveRight">&gt;</button>
+        <div class="action-cluster">
+          <button
+            class="control-btn action-btn shield"
+            :disabled="!canActivateShield"
+            @touchstart.prevent="useShield"
+            @click="useShield"
+          >
+            <span>Shield</span>
+            <small>{{ shieldChargePercent }}%</small>
+          </button>
+          <button
+            class="control-btn action-btn heal"
+            :disabled="!canUseEmergencyHealNow"
+            @touchstart.prevent="useHeal"
+            @click="useHeal"
+          >
+            <span>Heal</span>
+            <small>{{ emergencyHealCostLabel }}</small>
+          </button>
+        </div>
+
+        <div class="movement-cluster">
+          <button
+            class="control-btn movement-btn"
+            @touchstart.prevent="moveLeft"
+            @click="moveLeft"
+          >
+            <span class="movement-arrow">&lt;</span>
+            <small>Esquerda</small>
+          </button>
+          <button
+            class="control-btn movement-btn"
+            @touchstart.prevent="moveRight"
+            @click="moveRight"
+          >
+            <span class="movement-arrow">&gt;</span>
+            <small>Direita</small>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -698,6 +725,7 @@ watch(
 
 <style scoped>
 .runner-mobile-shell {
+  --runner-control-safe-area: 0px;
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -706,6 +734,9 @@ watch(
   background: #cfe8ff;
   touch-action: manipulation;
   user-select: none;
+}
+.runner-mobile-shell.is-playing {
+  --runner-control-safe-area: clamp(168px, 24dvh, 212px);
 }
 .runner-mobile-stage {
   position: absolute;
@@ -728,7 +759,7 @@ watch(
 .runner-stage-ground-glow {
   position: absolute;
   left: 50%;
-  bottom: 8dvh;
+  bottom: calc(var(--runner-control-safe-area) + 2dvh);
   width: 72%;
   height: 14dvh;
   transform: translateX(-50%);
@@ -886,7 +917,10 @@ watch(
 }
 .runner-road {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: var(--runner-control-safe-area);
+  left: 0;
   z-index: 1;
 }
 .lane {
@@ -1002,7 +1036,7 @@ watch(
 }
 .runner-player {
   position: absolute;
-  bottom: 16%;
+  bottom: clamp(28px, 10%, 88px);
   font-size: clamp(2.8rem, 8vw, 4rem);
   transform: translate(-50%, 0);
   transition-property: left, transform;
@@ -1091,6 +1125,50 @@ watch(
   padding: 24px;
   text-align: center;
 }
+.runner-start-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  max-height: min(92dvh, 760px);
+  overflow: hidden;
+  text-align: left;
+}
+.runner-start-header {
+  display: grid;
+  gap: 10px;
+}
+.runner-start-header .runner-chip {
+  width: max-content;
+  margin-bottom: 0;
+}
+.runner-start-header p {
+  margin-bottom: 0;
+}
+.runner-start-scroll {
+  min-height: 0;
+  display: grid;
+  gap: 16px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-right: -4px;
+  overscroll-behavior: contain;
+}
+.runner-start-actions {
+  display: grid;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.24);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.94) 28%,
+    rgba(255, 255, 255, 1) 100%
+  );
+}
+.runner-start-secondary {
+  display: grid;
+  gap: 10px;
+}
 .runner-chip {
   display: inline-flex;
   align-items: center;
@@ -1140,7 +1218,8 @@ watch(
 .selector-summary {
   display: grid;
   gap: 4px;
-  justify-items: center;
+  justify-items: start;
+  text-align: left;
   padding: 12px 14px;
 }
 .selector-summary span {
@@ -1153,19 +1232,23 @@ watch(
   color: #66768a;
   line-height: 1.35;
 }
-.start-stats,
+.start-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
 .vehicle-grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
-  margin-bottom: 18px;
 }
 .start-stats span {
   background: #f4f7fb;
   padding: 8px 12px;
   font-size: 0.8rem;
   font-weight: 800;
+  text-align: center;
 }
 .vehicle-chip {
   border: 0;
@@ -1189,7 +1272,6 @@ watch(
   gap: 10px;
 }
 .goal-grid {
-  margin-bottom: 18px;
   text-align: left;
 }
 .goal-grid div {
@@ -1255,6 +1337,8 @@ watch(
 .primary-cta {
   background: #1fba74;
   color: #fff;
+  min-height: 58px;
+  box-shadow: 0 16px 28px rgba(31, 186, 116, 0.28);
 }
 .secondary-cta {
   background: #edf5ff;
@@ -1269,12 +1353,46 @@ watch(
   position: absolute;
   left: 0;
   right: 0;
-  bottom: calc(18px + env(safe-area-inset-bottom));
+  bottom: 0;
   z-index: 22;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
-  padding: 0 18px;
+  padding:
+    14px
+    max(18px, env(safe-area-inset-right))
+    calc(env(safe-area-inset-bottom) + 18px)
+    max(18px, env(safe-area-inset-left));
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(207, 232, 255, 0) 0%,
+    rgba(207, 232, 255, 0.12) 16%,
+    rgba(246, 250, 255, 0.84) 56%,
+    rgba(246, 250, 255, 0.96) 100%
+  );
+}
+.action-cluster,
+.movement-cluster {
+  pointer-events: auto;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.38);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+}
+.action-cluster {
+  justify-self: end;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(88px, 96px));
+  gap: 10px;
+  padding: 10px;
+}
+.movement-cluster {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: min(100%, 460px);
+  justify-self: center;
+  padding: 10px;
 }
 .control-btn {
   min-height: 70px;
@@ -1289,6 +1407,17 @@ watch(
   place-items: center;
   gap: 2px;
   padding: 8px 10px;
+}
+.movement-btn {
+  min-height: 78px;
+}
+.action-btn {
+  min-height: 64px;
+  border-radius: 20px;
+}
+.movement-arrow {
+  font-size: 1.55rem;
+  line-height: 1;
 }
 .control-btn span {
   font-size: 0.92rem;
@@ -1318,9 +1447,6 @@ watch(
   }
 }
 @media (max-width: 640px) {
-  .runner-controls {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .result-grid {
     grid-template-columns: 1fr;
   }
@@ -1332,6 +1458,27 @@ watch(
   .runner-panel {
     width: min(94vw, 440px);
     padding: 22px 18px;
+  }
+  .runner-start-overlay {
+    place-items: end center;
+    padding:
+      16px
+      max(14px, env(safe-area-inset-right))
+      calc(env(safe-area-inset-bottom) + 14px)
+      max(14px, env(safe-area-inset-left));
+  }
+  .start-stats {
+    grid-template-columns: 1fr;
+  }
+  .runner-start-secondary {
+    grid-template-columns: 1fr;
+  }
+  .action-cluster {
+    justify-self: stretch;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .movement-cluster {
+    width: 100%;
   }
 }
 </style>
