@@ -3,6 +3,13 @@ import type { AvatarMeta, AvatarOption } from '@/types/player'
 export const avatarOptions: AvatarMeta[] = [
   {
     value: 'mascote-coelho',
+    label: 'Estherzinha',
+    emoji: '👧🏽',
+    description: 'Gosta de rosa e de brincar.',
+    accentColor: '#f852c6'
+  },
+  {
+    value: 'mascote-coelho',
     label: 'Luna Coelha',
     emoji: '🐰',
     description: 'Ama pistas rapidas, desafios leves e descobertas alegres.',

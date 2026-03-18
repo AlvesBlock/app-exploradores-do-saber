@@ -23,14 +23,23 @@
         <span>{{ Math.round(status.progressPercent) }}%</span>
       </div>
       <div class="kids-progress-bar premium-progress-bar">
-        <div class="kids-progress-fill premium-progress-fill" :style="{ width: `${status.progressPercent}%` }"></div>
+        <div
+          class="kids-progress-fill premium-progress-fill"
+          :style="{ width: `${status.progressPercent}%` }"
+        ></div>
       </div>
     </div>
 
     <div class="premium-stats">
-      <div class="kids-stat-pill"><span>🖼️</span><span>{{ unlockedCharacters }}/{{ totalCharacters }}</span></div>
-      <div class="kids-stat-pill"><span>✨</span><span>{{ magicDust }} poeira magica</span></div>
-      <div class="kids-stat-pill"><span>👑</span><span>{{ statusLabel }}</span></div>
+      <div class="kids-stat-pill">
+        <span>🖼️</span><span>{{ unlockedCharacters }}/{{ totalCharacters }}</span>
+      </div>
+      <div class="kids-stat-pill">
+        <span>✨</span><span>{{ magicDust }} poeira magica</span>
+      </div>
+      <div class="kids-stat-pill">
+        <span>👑</span><span>{{ statusLabel }}</span>
+      </div>
     </div>
 
     <p class="premium-helper">{{ status.helperText }}</p>
@@ -65,21 +74,21 @@ defineEmits<{
 }>()
 
 const canEnter = computed(() => props.status.unlocked)
+
 const statusLabel = computed(() => {
   switch (props.status.status) {
     case 'locked':
       return 'bloqueado'
     case 'almost-unlocked':
-      return 'quase la'
     case 'just-unlocked':
       return 'liberado'
     case 'available':
       return 'pronto'
     case 'visited':
       return 'em aventura'
+    default:
+      return 'bloqueado'
   }
-
-  return 'bloqueado'
 })
 </script>
 
@@ -92,7 +101,12 @@ const statusLabel = computed(() => {
   gap: 16px;
   background:
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.94), transparent 35%),
-    linear-gradient(135deg, rgba(29, 78, 216, 0.12) 0%, rgba(217, 70, 239, 0.16) 48%, rgba(251, 191, 36, 0.18) 100%);
+    linear-gradient(
+      135deg,
+      rgba(29, 78, 216, 0.12) 0%,
+      rgba(217, 70, 239, 0.16) 48%,
+      rgba(251, 191, 36, 0.18) 100%
+    );
 }
 
 .premium-card.locked,
@@ -215,13 +229,21 @@ const statusLabel = computed(() => {
 }
 
 @media (min-width: 860px) {
-  .premium-card {
-    padding: 24px;
-  }
-
   .premium-action-button {
     width: auto;
     min-width: 220px;
+  }
+}
+
+@media (max-width: 859px) {
+  .premium-card {
+    position: relative;
+    padding: 22px;
+    display: grid;
+    gap: 16px;
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 }
 </style>

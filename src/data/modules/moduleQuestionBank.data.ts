@@ -437,20 +437,20 @@ export const moduleQuestionBank: ModuleQuestion[] = [
     moduleId: 'geography',
     day: 2,
     suffix: 'd2-rua-residencial',
-    emoji: '🏠',
+    emoji: '📮',
     difficulty: 'warmup',
-    title: 'Lugar de morar',
-    prompt: 'Uma rua com muitas casas e poucos comércios é uma rua:',
-    tip: 'Pense em onde as pessoas moram.',
+    title: 'Achando a casa',
+    prompt: 'Para encontrar uma casa na rua, qual informação ajuda mais? 🏠',
+    tip: 'Pense no que aparece no endereço.',
     options: [
-      { label: 'Residencial', value: 'residencial', emoji: '🛏️' },
-      { label: 'Industrial', value: 'industrial', emoji: '🏭' },
-      { label: 'Aeroportuária', value: 'aeroporto', emoji: '✈️' }
+      { label: 'O número da casa', value: 'numero', emoji: '🔢' },
+      { label: 'A cor do céu', value: 'ceu', emoji: '☁️' },
+      { label: 'O sabor do lanche', value: 'lanche', emoji: '🍪' }
     ],
-    correctAnswer: 'residencial',
-    successMessage: 'Isso! Ruas com casas são residenciais.',
-    errorMessage: 'Quase. Procure a opção ligada à moradia.',
-    explanation: 'Áreas residenciais concentram casas e prédios de moradia.'
+    correctAnswer: 'numero',
+    successMessage: 'Isso! O número ajuda a localizar a casa. 📍',
+    errorMessage: 'Quase. Pense no que faz parte do endereço.',
+    explanation: 'O endereço usa informações como nome da rua e número para localizar lugares.'
   }),
 
   question({
@@ -874,20 +874,20 @@ export const moduleQuestionBank: ModuleQuestion[] = [
     moduleId: 'science',
     day: 5,
     suffix: 'd5-desafio-solido',
-    emoji: '🧊',
+    emoji: '🔥',
     difficulty: 'challenge',
-    title: 'Gelo no copo',
-    prompt: 'Quando a água vira gelo, ela fica em estado:',
-    tip: 'Pense em algo durinho e frio.',
+    title: 'Gelo derretendo',
+    prompt: 'Quando o gelo fica fora da geladeira por um tempo, ele vira: 🧊➡️',
+    tip: 'Pense no que acontece quando o gelo esquenta.',
     options: [
-      { label: 'Sólido', value: 'solido', emoji: '🧊' },
-      { label: 'Líquido', value: 'liquido', emoji: '💧' },
-      { label: 'Gasoso', value: 'gasoso', emoji: '☁️' }
+      { label: 'Água líquida', value: 'liquida', emoji: '💧' },
+      { label: 'Fumaça azul', value: 'fumaca', emoji: '🌫️' },
+      { label: 'Pedra gelada', value: 'pedra', emoji: '🪨' }
     ],
-    correctAnswer: 'solido',
-    successMessage: 'Isso! O gelo é água em estado sólido.',
-    errorMessage: 'Observe como o gelo fica firme.',
-    explanation: 'A matéria pode mudar de estado com a temperatura.'
+    correctAnswer: 'liquida',
+    successMessage: 'Muito bem! O gelo derrete e vira água líquida. 💧',
+    errorMessage: 'Quase. Pense no que aparece no copo quando o gelo derrete.',
+    explanation: 'Derreter é a mudança do estado sólido para o líquido.'
   }),
   question({
     moduleId: 'science',
@@ -954,20 +954,20 @@ export const moduleQuestionBank: ModuleQuestion[] = [
     moduleId: 'language',
     day: 1,
     suffix: 'd1-silabas-casa',
-    emoji: '🏠',
+    emoji: '🔚',
     difficulty: 'warmup',
-    title: 'Quantas partes?',
-    prompt: 'A palavra "casa" tem quantas sílabas?',
-    tip: 'Diga devagar: ca-sa.',
+    title: 'Última letra',
+    prompt: 'Qual é a última letra da palavra "casa"? 🏠',
+    tip: 'Olhe para o final da palavra.',
     options: [
-      { label: '1', value: 1, emoji: '1️⃣' },
-      { label: '2', value: 2, emoji: '2️⃣' },
-      { label: '3', value: 3, emoji: '3️⃣' }
+      { label: 'C', value: 'c', emoji: '1️⃣' },
+      { label: 'S', value: 's', emoji: '2️⃣' },
+      { label: 'A', value: 'a', emoji: '3️⃣' }
     ],
-    correctAnswer: 2,
-    successMessage: 'Boa! ca-sa tem duas sílabas.',
-    errorMessage: 'Fale a palavra devagar e conte.',
-    explanation: 'Cada pedaço sonoro conta como uma sílaba.'
+    correctAnswer: 'a',
+    successMessage: 'Boa! A palavra "casa" termina com A. ✨',
+    errorMessage: 'Quase. Observe a letrinha do final.',
+    explanation: 'Perceber a posição das letras ajuda na leitura e na escrita.'
   }),
   question({
     moduleId: 'language',
@@ -1166,21 +1166,21 @@ export const moduleQuestionBank: ModuleQuestion[] = [
   question({
     moduleId: 'language',
     day: 5,
-    suffix: 'd5-desafio-titulo',
-    emoji: '📖',
+    suffix: 'd5-desafio-recado',
+    emoji: '🗣️',
     difficulty: 'challenge',
-    title: 'Título de história',
-    prompt: 'Qual título combina melhor com uma história sobre uma tartaruga veloz?',
-    tip: 'Escolha um título ligado ao tema.',
+    title: 'Quem está falando?',
+    prompt: 'Na frase "Eu adoro brincar no parque!", quem está falando? 😊',
+    tip: 'Pense em quem diz a palavra "eu".',
     options: [
-      { label: 'A tartaruga que queria correr', value: 'tartaruga', emoji: '🐢' },
-      { label: 'A panela do espaço vazio', value: 'panela', emoji: '🍲' },
-      { label: 'As meias da montanha azul', value: 'meias', emoji: '🧦' }
+      { label: 'A própria pessoa que fala', value: 'eu', emoji: '🙋' },
+      { label: 'O parque', value: 'parque', emoji: '🌳' },
+      { label: 'A bola', value: 'bola', emoji: '⚽' }
     ],
-    correctAnswer: 'tartaruga',
-    successMessage: 'Boa! O título combina com o assunto da história.',
-    errorMessage: 'Procure o título que conversa com a personagem.',
-    explanation: 'Títulos ajudam a antecipar o assunto do texto.'
+    correctAnswer: 'eu',
+    successMessage: 'Isso! "Eu" mostra quem está falando. 🎉',
+    errorMessage: 'Quase. A palavra "eu" fala da própria pessoa.',
+    explanation: 'Na fala e na escrita, "eu" indica quem está se expressando.'
   }),
   question({
     moduleId: 'language',

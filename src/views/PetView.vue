@@ -68,14 +68,25 @@
 
               <div
                 class="pet-avatar"
-                :class="{
-                  sleeping: activeAction === 'sleep',
-                  bathing: activeAction === 'bath',
-                  playing: activeAction === 'play',
-                  eating: activeAction === 'feed',
-                }"
+                :class="[
+                  petMoodState,
+                  {
+                    sleeping: activeAction === 'sleep',
+                    bathing: activeAction === 'bath',
+                    playing: activeAction === 'play',
+                    eating: activeAction === 'feed',
+                  },
+                ]"
               >
-                {{ pet.emoji }}
+                <span class="pet-avatar-body">{{ pet.emoji }}</span>
+                <span
+                  v-if="petMoodState === 'sleepy' || activeAction === 'sleep'"
+                  class="pet-effect zzz"
+                  >💤</span
+                >
+                <span v-if="petMoodState === 'hungry'" class="pet-effect hungry">🍖</span>
+                <span v-if="petMoodState === 'dirty'" class="pet-effect dirty">🫧</span>
+                <span v-if="petMoodState === 'excited'" class="pet-effect sparkle">✨</span>
               </div>
             </div>
 
@@ -176,6 +187,18 @@ const router = useRouter()
 const toast = useToast()
 
 type PetKind = 'dog' | 'cat' | 'bunny'
+
+const petMoodState = computed(() => {
+  const { happiness, energy, hygiene, hunger } = pet.value
+  const avg = (happiness + energy + hygiene + hunger) / 4
+
+  if (energy <= 30) return 'sleepy'
+  if (hygiene <= 30) return 'dirty'
+  if (hunger <= 30) return 'hungry'
+  if (happiness <= 35) return 'sad'
+  if (avg >= 80) return 'excited'
+  return 'happy'
+})
 
 interface PetState {
   type: PetKind
@@ -686,6 +709,168 @@ function goHub() {
 
   .action-bar {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+.pet-avatar {
+  position: absolute;
+  left: 50%;
+  bottom: 58px;
+  transform: translateX(-50%);
+  font-size: 7rem;
+  line-height: 1;
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease,
+    opacity 0.25s ease;
+  filter: drop-shadow(0 12px 10px rgba(0, 0, 0, 0.12));
+  animation: petIdle 2.8s ease-in-out infinite;
+}
+
+.pet-avatar-body {
+  display: inline-block;
+  animation: petBlinkScale 4s ease-in-out infinite;
+}
+
+.pet-avatar.happy .pet-avatar-body {
+  animation: petBlinkScale 4s ease-in-out infinite;
+}
+
+.pet-avatar.excited {
+  animation: petIdle 1.6s ease-in-out infinite;
+}
+
+.pet-avatar.excited .pet-avatar-body {
+  animation: petBounce 0.9s ease-in-out infinite;
+}
+
+.pet-avatar.sad {
+  filter: grayscale(0.12) drop-shadow(0 10px 8px rgba(0, 0, 0, 0.1));
+  transform: translateX(-50%) translateY(6px) scale(0.96);
+}
+
+.pet-avatar.hungry .pet-avatar-body {
+  animation: petWiggle 1.8s ease-in-out infinite;
+}
+
+.pet-avatar.dirty {
+  filter: saturate(0.9) brightness(0.96) drop-shadow(0 12px 10px rgba(0, 0, 0, 0.12));
+}
+
+.pet-avatar.sleepy {
+  opacity: 0.9;
+  transform: translateX(-50%) translateY(8px);
+}
+
+.pet-avatar.playing {
+  transform: translateX(-50%) translateY(-10px) scale(1.08);
+}
+
+.pet-avatar.eating {
+  transform: translateX(-50%) scale(1.04) rotate(-2deg);
+}
+
+.pet-avatar.bathing {
+  transform: translateX(-50%) scale(1.03);
+  filter: brightness(1.06) drop-shadow(0 12px 10px rgba(0, 0, 0, 0.12));
+}
+
+.pet-avatar.sleeping {
+  opacity: 0.88;
+  transform: translateX(-50%) translateY(10px) scale(0.98);
+}
+
+.pet-effect {
+  position: absolute;
+  font-size: 1.8rem;
+  animation: floatEffect 1.8s ease-in-out infinite;
+}
+
+.pet-effect.zzz {
+  top: -18px;
+  right: -10px;
+}
+
+.pet-effect.hungry {
+  top: 10px;
+  right: -18px;
+}
+
+.pet-effect.dirty {
+  top: -8px;
+  left: -10px;
+}
+
+.pet-effect.sparkle {
+  top: -16px;
+  left: -14px;
+}
+
+@keyframes petIdle {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-6px);
+  }
+}
+
+@keyframes petBounce {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.05) rotate(-4deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(0deg);
+  }
+  75% {
+    transform: scale(1.05) rotate(4deg);
+  }
+}
+
+@keyframes petWiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-4deg);
+  }
+  75% {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes petBlinkScale {
+  0%,
+  45%,
+  100% {
+    transform: scaleY(1);
+  }
+  48% {
+    transform: scaleY(0.92);
+  }
+  50% {
+    transform: scaleY(0.85);
+  }
+  52% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes floatEffect {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(-8px);
+    opacity: 1;
   }
 }
 </style>
