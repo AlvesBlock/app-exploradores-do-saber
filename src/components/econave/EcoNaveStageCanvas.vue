@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootRef" class="econave-stage-canvas">
+  <div ref="rootRef" class="econave-stage-canvas" :class="{ immersive }">
     <div v-if="isBooting" class="canvas-loading">Preparando a orbita...</div>
   </div>
 </template>
@@ -29,9 +29,11 @@ const props = withDefaults(
     runtimeState: EcoNaveRuntimeState | null
     stageId: EcoNaveStageId
     quality?: EcoNaveRenderQuality
+    immersive?: boolean
   }>(),
   {
-    quality: 'high'
+    quality: 'high',
+    immersive: false
   },
 )
 
@@ -42,6 +44,7 @@ let app: Application | null = null
 let resizeObserver: ResizeObserver | null = null
 
 const backgroundLayer = new Graphics()
+const detailLayer = new Graphics()
 const parallaxLayer = new Container()
 const gameplayLayer = new Container()
 const particleLayer = new Container()
@@ -117,8 +120,9 @@ function updateBackground() {
   }
 
   const { width, height } = getRendererSize()
+  const radius = props.immersive ? 24 : 34
   backgroundLayer.clear()
-  backgroundLayer.roundRect(0, 0, width, height, 34).fill({ color: stage.skyTop })
+  backgroundLayer.roundRect(0, 0, width, height, radius).fill({ color: stage.skyTop })
   backgroundLayer.roundRect(0, height * 0.36, width, height * 0.64, 0).fill({
     color: stage.skyBottom,
     alpha: 0.78
@@ -126,6 +130,27 @@ function updateBackground() {
   backgroundLayer.roundRect(width * 0.08, height * 0.1, width * 0.84, height * 0.18, 90).fill({
     color: 0xffffff,
     alpha: 0.07
+  })
+
+  detailLayer.clear()
+  detailLayer.circle(width * 0.18, height * 0.78, width * 0.34).stroke({
+    color: 0xffffff,
+    alpha: 0.08,
+    width: 2
+  })
+  detailLayer.circle(width * 0.82, height * 0.22, width * 0.18).fill({
+    color: 0xffffff,
+    alpha: 0.05
+  })
+  detailLayer.circle(width * 0.82, height * 0.22, width * 0.23).stroke({
+    color: 0xffffff,
+    alpha: 0.06,
+    width: 2
+  })
+  detailLayer.roundRect(width * 0.08, height * 0.62, width * 0.84, height * 0.22, 28).stroke({
+    color: 0xffffff,
+    alpha: 0.05,
+    width: 2
   })
 }
 
@@ -327,7 +352,7 @@ async function bootstrapCanvas() {
   drawPlayer()
   rebuildStars()
 
-  app.stage.addChild(backgroundLayer, parallaxLayer, gameplayLayer, particleLayer, playerNode)
+  app.stage.addChild(backgroundLayer, detailLayer, parallaxLayer, gameplayLayer, particleLayer, playerNode)
   app.ticker.add(renderFrame)
 
   resizeObserver = new ResizeObserver(() => {
@@ -393,6 +418,10 @@ onBeforeUnmount(() => {
   height: 100%;
   border-radius: 34px;
   overflow: hidden;
+}
+
+.econave-stage-canvas.immersive {
+  border-radius: inherit;
 }
 
 .canvas-loading {

@@ -1,53 +1,17 @@
 <template>
-  <div class="kids-page econave-page">
-    <div class="kids-container econave-shell">
-      <section v-if="showMenu" class="kids-card econave-hero econave-animate-in">
-        <div class="hero-copy">
-          <div class="kids-eyebrow">🚀 Missao arcade educativa</div>
+  <div class="kids-page econave-page" :class="{ 'is-gameplay': !showMenu }">
+    <div v-if="showMenu" ref="menuRootRef" class="kids-container econave-command">
+      <section class="kids-card kids-card-strong econave-overview econave-panel">
+        <div class="econave-overview__copy">
+          <div class="kids-eyebrow">Missao arcade educativa</div>
           <h1 class="kids-title">EcoNave: Guardioes da Orbita</h1>
           <p class="kids-subtitle">
-            {{ playerName }}, pilote uma nave ecológica, limpe a orbita e aprenda que sustentabilidade
-            tambem depende de boas escolhas no espaco.
+            {{ playerName }}, sua nave limpa a orbita, protege tecnologia util e ensina que
+            sustentabilidade depende de boas decisoes em qualquer ambiente.
           </p>
 
-          <div class="hero-actions">
-            <Button label="Iniciar fase selecionada" icon="pi pi-play" @click="startSelectedStage" />
-            <Button
-              label="Voltar ao hub"
-              icon="pi pi-home"
-              severity="secondary"
-              outlined
-              @click="goHub"
-            />
-          </div>
-        </div>
-
-        <div class="hero-summary">
-          <div class="summary-card">
-            <span>🌍</span>
-            <strong>{{ game.progress.value.ecoCredits }}</strong>
-            <small>eco-creditos</small>
-          </div>
-          <div class="summary-card">
-            <span>⭐</span>
-            <strong>{{ game.progress.value.totalStars }}/15</strong>
-            <small>estrelas de fase</small>
-          </div>
-          <div class="summary-card">
-            <span>🛸</span>
-            <strong>{{ game.unlockedStageCount.value }}/5</strong>
-            <small>fases liberadas</small>
-          </div>
-        </div>
-      </section>
-
-      <section v-if="showMenu" class="econave-grid">
-        <article class="kids-card stage-browser econave-animate-in">
-          <div class="browser-header">
-            <div>
-              <div class="kids-eyebrow">🪐 Jornadas orbitais</div>
-              <h2 class="kids-section-title">Selecione sua fase</h2>
-            </div>
+          <div class="econave-overview__actions">
+            <Button label="Jogar fase selecionada" icon="pi pi-play" @click="startSelectedStage" />
             <Button
               label="Ajustes"
               icon="pi pi-cog"
@@ -57,312 +21,206 @@
             />
           </div>
 
-          <div class="stage-list">
-            <button
-              v-for="stage in stageCards"
-              :key="stage.id"
-              type="button"
-              class="stage-card"
-              :class="{
-                active: stage.id === game.selectedStageId.value,
-                locked: !stage.progress.unlocked
-              }"
-              :style="{ '--stage-gradient': stage.gradient, '--stage-accent': stage.accentColor }"
-              @click="game.selectStageCard(stage.id)"
-            >
-              <div class="stage-card-top">
-                <div>
-                  <small>{{ stage.badge }}</small>
-                  <strong>{{ stage.title }}</strong>
-                </div>
-                <span class="kids-chip" :class="stage.progress.unlocked ? 'success' : 'neutral'">
-                  {{ stage.progress.unlocked ? `${stage.progress.bestStars}⭐` : 'Bloqueada' }}
-                </span>
-              </div>
-              <p>{{ stage.description }}</p>
-              <div class="stage-card-meta">
-                <span>Recorde {{ stage.progress.bestScore }}</span>
-                <span>Tentativas {{ stage.progress.attempts }}</span>
-              </div>
-            </button>
+          <div class="econave-overview__chips">
+            <span class="kids-chip info">{{ game.selectedStage.value.badge }} pronto para a rota</span>
+            <span class="kids-chip success">{{ game.selectedShip.value.name }} em destaque</span>
           </div>
-        </article>
-
-        <article class="kids-card stage-briefing econave-animate-in">
-          <div class="briefing-badge" :style="{ background: game.selectedStage.value.gradient }">
-            {{ game.selectedStage.value.badge }}
-          </div>
-          <h2>{{ game.selectedStage.value.title }}</h2>
-          <p class="briefing-copy">{{ game.selectedStage.value.description }}</p>
-
-          <div class="goal-grid">
-            <div class="kids-stat-pill">
-              <span>♻️</span>
-              <span>{{ game.selectedStage.value.goals.collectTarget }} coletas corretas</span>
-            </div>
-            <div class="kids-stat-pill">
-              <span>⚠️</span>
-              <span>{{ game.selectedStage.value.goals.neutralizeTarget }} neutralizacoes</span>
-            </div>
-            <div class="kids-stat-pill">
-              <span>🛰️</span>
-              <span>{{ game.selectedStage.value.goals.protectTarget }} estruturas protegidas</span>
-            </div>
-            <div class="kids-stat-pill">
-              <span>🌱</span>
-              <span>ecoScore {{ game.selectedStage.value.goals.ecoScoreTarget }}</span>
-            </div>
-          </div>
-
-          <ul class="briefing-list">
-            <li v-for="mission in game.selectedStage.value.missionLines" :key="mission">{{ mission }}</li>
-          </ul>
-
-          <div class="stage-cta-row">
-            <Button
-              :label="game.stageProgress.value?.unlocked ? 'Jogar agora' : 'Fase bloqueada'"
-              icon="pi pi-play"
-              :disabled="!game.stageProgress.value?.unlocked"
-              @click="startSelectedStage"
-            />
-            <Button
-              label="Ver naves"
-              icon="pi pi-send"
-              severity="secondary"
-              outlined
-              @click="scrollToShips"
-            />
-          </div>
-        </article>
-      </section>
-
-      <section v-if="showMenu" ref="shipsSectionRef" class="kids-card ships-panel econave-animate-in">
-        <div class="browser-header">
-          <div>
-            <div class="kids-eyebrow">🛸 Frota desbloqueavel</div>
-            <h2 class="kids-section-title">Escolha sua nave</h2>
-          </div>
-          <p class="kids-section-copy">Cada casco muda levemente seu estilo de pilotagem.</p>
         </div>
 
-        <div class="ship-grid">
-          <button
-            v-for="ship in ships"
-            :key="ship.id"
-            type="button"
-            class="ship-card"
-            :class="{
-              active: ship.id === game.progress.value.selectedShipId,
-              locked: !game.progress.value.unlockedShipIds.includes(ship.id)
-            }"
-            :style="{ '--ship-gradient': ship.gradient, '--ship-accent': ship.accentColor }"
-            @click="selectShip(ship.id)"
+        <div class="econave-overview__side">
+          <div class="hero-kpis">
+            <article class="hero-kpi">
+              <span>Eco-creditos</span>
+              <strong>{{ game.progress.value.ecoCredits }}</strong>
+            </article>
+            <article class="hero-kpi">
+              <span>Estrelas</span>
+              <strong>{{ game.progress.value.totalStars }}/15</strong>
+            </article>
+            <article class="hero-kpi">
+              <span>Fases liberadas</span>
+              <strong>{{ game.unlockedStageCount.value }}/5</strong>
+            </article>
+          </div>
+
+          <article
+            class="hero-spotlight"
+            :style="{ '--spotlight-gradient': game.selectedStage.value.gradient, '--spotlight-accent': game.selectedStage.value.accentColor }"
           >
-            <div class="ship-header">
-              <span class="ship-emoji">{{ ship.emoji }}</span>
-              <span class="kids-chip" :class="game.progress.value.unlockedShipIds.includes(ship.id) ? 'success' : 'warning'">
-                {{
-                  game.progress.value.unlockedShipIds.includes(ship.id)
-                    ? 'Liberada'
-                    : `${ship.unlockCredits} creditos`
-                }}
+            <div class="hero-spotlight__top">
+              <div>
+                <small>{{ game.selectedStage.value.themeName }}</small>
+                <strong>{{ game.selectedStage.value.title }}</strong>
+              </div>
+              <span class="kids-chip" :class="game.stageProgress.value?.unlocked ? 'success' : 'neutral'">
+                {{ game.stageProgress.value?.unlocked ? 'Liberada' : 'Bloqueada' }}
               </span>
             </div>
-            <strong>{{ ship.name }}</strong>
-            <p>{{ ship.description }}</p>
-            <small>{{ ship.educationalBenefit }}</small>
-          </button>
+
+            <p>{{ game.selectedStage.value.description }}</p>
+
+            <div class="hero-spotlight__meta">
+              <span>Recorde {{ game.stageProgress.value?.bestScore ?? 0 }}</span>
+              <span>{{ game.selectedShip.value.name }}</span>
+            </div>
+          </article>
         </div>
       </section>
 
-      <section v-if="!showMenu" class="kids-card runtime-shell">
-        <header class="runtime-header">
-          <div>
-            <div class="kids-eyebrow">{{ game.selectedStage.value.badge }}</div>
-            <h2 class="kids-section-title runtime-title">{{ game.selectedStage.value.title }}</h2>
-          </div>
-
-          <div class="runtime-actions">
-            <Button
-              v-if="game.isRunning.value"
-              label="Pausar"
-              icon="pi pi-pause"
-              severity="secondary"
-              outlined
-              @click="game.pauseStage"
-            />
-            <Button
-              v-else-if="game.isPaused.value"
-              label="Retomar"
-              icon="pi pi-play"
-              severity="secondary"
-              outlined
-              @click="game.resumeStage"
-            />
-            <Button label="Sair" icon="pi pi-times" severity="secondary" outlined @click="goToBriefing" />
-          </div>
-        </header>
-
-        <div class="hud-strip">
-          <div class="hud-pill">Score {{ game.hud.value.score }}</div>
-          <div class="hud-pill">Energia {{ game.hud.value.energy }}/{{ game.hud.value.maxEnergy }}</div>
-          <div class="hud-pill">Combo x{{ Math.max(1, game.hud.value.combo) }}</div>
-          <div class="hud-pill">Pulso {{ game.hud.value.pulseCharges }}</div>
-          <div class="hud-pill accent">{{ game.hud.value.timeLeftSeconds.toFixed(1) }}s</div>
+      <section class="kids-card econave-nav-shell econave-panel">
+        <div class="econave-nav-shell__tabs" role="tablist" aria-label="Navegacao do modulo EcoNave">
+          <button
+            v-for="tab in menuTabs"
+            :key="tab.id"
+            type="button"
+            class="nav-tab"
+            :class="{ active: activePanel === tab.id }"
+            @click="activePanel = tab.id"
+          >
+            <span class="nav-tab__icon">{{ tab.icon }}</span>
+            <span>{{ tab.label }}</span>
+          </button>
         </div>
 
-        <div class="mission-strip">
-          <div class="mission-pill">♻️ {{ game.hud.value.collectedCorrect }}/{{ game.hud.value.collectTarget }}</div>
-          <div class="mission-pill">⚠️ {{ game.hud.value.neutralizedHazards }}/{{ game.hud.value.neutralizeTarget }}</div>
-          <div class="mission-pill">🛰️ {{ game.hud.value.protectedSatellites }}/{{ game.hud.value.protectTarget }}</div>
-          <div class="mission-pill">🌱 {{ game.hud.value.ecoScore }}/{{ game.hud.value.ecoScoreTarget }}</div>
-        </div>
-
-        <div class="stage-frame">
-          <EcoNaveStageCanvas
-            :runtime-state="game.runtimeState.value"
-            :stage-id="game.selectedStageId.value"
-            :quality="game.progress.value.settings.quality"
+        <div class="econave-nav-shell__actions">
+          <Button
+            label="Voltar ao hub"
+            icon="pi pi-home"
+            severity="secondary"
+            outlined
+            @click="goHub"
           />
+          <Button label="Jogar agora" icon="pi pi-play" @click="startSelectedStage" />
+        </div>
+      </section>
 
-          <div v-if="game.latestFeedback.value" class="feedback-bubble" :class="game.latestFeedback.value.tone">
-            <span>{{ game.latestFeedback.value.icon }}</span>
-            <strong>{{ game.latestFeedback.value.text }}</strong>
-          </div>
+      <section class="kids-card econave-content-shell econave-panel">
+        <div ref="panelBodyRef" :key="activePanel" class="econave-panel-body">
+          <div v-if="activePanel === 'overview'" class="overview-panel">
+            <article class="overview-panel__mission">
+              <div class="overview-panel__heading">
+                <div>
+                  <div class="kids-eyebrow">Missao atual</div>
+                  <h2 class="kids-section-title">Briefing rapido da sua rota</h2>
+                </div>
+                <span class="kids-chip info">{{ game.selectedStage.value.badge }}</span>
+              </div>
 
-          <div v-if="game.hud.value.bossMaxHp > 0" class="boss-bar">
-            <span>Boss orbital</span>
-            <div class="kids-progress-bar">
-              <div
-                class="kids-progress-fill boss"
-                :style="{ width: `${(game.hud.value.bossHp / Math.max(game.hud.value.bossMaxHp, 1)) * 100}%` }"
-              ></div>
-            </div>
-          </div>
+              <div class="overview-panel__goal-grid">
+                <div class="goal-card">
+                  <span>♻️ Coletas</span>
+                  <strong>{{ game.selectedStage.value.goals.collectTarget }}</strong>
+                </div>
+                <div class="goal-card">
+                  <span>⚠️ Neutralizacoes</span>
+                  <strong>{{ game.selectedStage.value.goals.neutralizeTarget }}</strong>
+                </div>
+                <div class="goal-card">
+                  <span>🛰️ Estruturas</span>
+                  <strong>{{ game.selectedStage.value.goals.protectTarget }}</strong>
+                </div>
+                <div class="goal-card">
+                  <span>🌱 EcoScore</span>
+                  <strong>{{ game.selectedStage.value.goals.ecoScoreTarget }}</strong>
+                </div>
+              </div>
 
-          <div v-if="game.isPaused.value" class="overlay-card pause">
-            <div class="kids-chip warning">Jogo pausado</div>
-            <h3>Respire, observe a orbita e retome quando quiser.</h3>
-            <div class="overlay-actions">
-              <Button label="Retomar" icon="pi pi-play" @click="game.resumeStage" />
-              <Button label="Voltar ao briefing" icon="pi pi-arrow-left" severity="secondary" outlined @click="goToBriefing" />
-            </div>
-          </div>
-
-          <div v-if="game.currentResult.value" ref="resultCardRef" class="overlay-card result">
-            <div class="kids-chip" :class="game.currentResult.value.victory ? 'success' : 'warning'">
-              {{ game.currentResult.value.victory ? 'Orbita estabilizada' : 'Missao incompleta' }}
-            </div>
-            <h3>
-              {{
-                game.currentResult.value.victory
-                  ? 'Voce liderou uma limpeza orbital profissional.'
-                  : 'A rota ainda precisa de uma estrategia melhor.'
-              }}
-            </h3>
-            <p>
-              Score {{ game.currentResult.value.score }}, {{ game.currentResult.value.ecoCreditsEarned }} eco-creditos
-              e {{ game.currentResult.value.starsEarned }} estrela(s).
-            </p>
-
-            <div class="goal-grid compact">
-              <div class="kids-stat-pill"><span>♻️</span><span>{{ game.currentResult.value.collectedCorrect }}</span></div>
-              <div class="kids-stat-pill"><span>⚠️</span><span>{{ game.currentResult.value.neutralizedHazards }}</span></div>
-              <div class="kids-stat-pill"><span>🛰️</span><span>{{ game.currentResult.value.protectedSatellites }}</span></div>
-              <div class="kids-stat-pill"><span>🌱</span><span>{{ game.currentResult.value.ecoScore }}</span></div>
-            </div>
-
-            <ul class="briefing-list result-list">
-              <li v-for="line in game.currentResult.value.summaryLines" :key="line">{{ line }}</li>
-            </ul>
-
-            <article class="edu-card">
-              <strong>{{ game.currentResult.value.educationalCard.title }}</strong>
-              <p>{{ game.currentResult.value.educationalCard.fact }}</p>
-              <small>{{ game.currentResult.value.educationalCard.tip }}</small>
+              <ul class="overview-panel__list">
+                <li v-for="mission in game.selectedStage.value.missionLines" :key="mission">{{ mission }}</li>
+              </ul>
             </article>
 
-            <div class="overlay-actions">
-              <Button label="Jogar novamente" icon="pi pi-refresh" @click="restartCurrentStage" />
-              <Button
-                v-if="nextStageId && game.currentResult.value.victory"
-                label="Proxima fase"
-                icon="pi pi-arrow-right"
-                severity="secondary"
-                outlined
-                @click="startNextStage"
-              />
-              <Button label="Voltar ao briefing" icon="pi pi-home" severity="secondary" outlined @click="goToBriefing" />
+            <div class="overview-panel__side">
+              <article class="overview-card">
+                <div class="overview-card__header">
+                  <div>
+                    <small>Fase selecionada</small>
+                    <strong>{{ game.selectedStage.value.title }}</strong>
+                  </div>
+                  <Button
+                    label="Trocar fase"
+                    icon="pi pi-compass"
+                    severity="secondary"
+                    outlined
+                    @click="activePanel = 'stages'"
+                  />
+                </div>
+                <p>{{ game.selectedStage.value.description }}</p>
+                <div class="overview-card__meta">
+                  <span>Recorde {{ game.stageProgress.value?.bestScore ?? 0 }}</span>
+                  <span>{{ game.stageProgress.value?.attempts ?? 0 }} tentativa(s)</span>
+                </div>
+              </article>
+
+              <article class="overview-card">
+                <div class="overview-card__header">
+                  <div>
+                    <small>Nave selecionada</small>
+                    <strong>{{ game.selectedShip.value.name }}</strong>
+                  </div>
+                  <Button
+                    label="Trocar nave"
+                    icon="pi pi-send"
+                    severity="secondary"
+                    outlined
+                    @click="activePanel = 'ships'"
+                  />
+                </div>
+                <p>{{ game.selectedShip.value.educationalBenefit }}</p>
+                <div class="overview-card__meta">
+                  <span>Energia {{ game.selectedShip.value.stats.maxEnergy }}</span>
+                  <span>Pulso {{ game.selectedShip.value.stats.startingPulseCharges }}</span>
+                </div>
+              </article>
             </div>
           </div>
-        </div>
 
-        <div class="controls-shell">
-          <div class="move-pad">
-            <button
-              type="button"
-              class="control-btn"
-              @pointerdown.prevent="setDirection(0, -1)"
-              @pointerup="stopDirection"
-              @pointerleave="stopDirection"
-              @pointercancel="stopDirection"
-            >
-              ↑
-            </button>
-            <div class="move-row">
-              <button
-                type="button"
-                class="control-btn"
-                @pointerdown.prevent="setDirection(-1, 0)"
-                @pointerup="stopDirection"
-                @pointerleave="stopDirection"
-                @pointercancel="stopDirection"
-              >
-                ←
-              </button>
-              <button
-                type="button"
-                class="control-btn"
-                @pointerdown.prevent="setDirection(1, 0)"
-                @pointerup="stopDirection"
-                @pointerleave="stopDirection"
-                @pointercancel="stopDirection"
-              >
-                →
-              </button>
-            </div>
-            <button
-              type="button"
-              class="control-btn"
-              @pointerdown.prevent="setDirection(0, 1)"
-              @pointerup="stopDirection"
-              @pointerleave="stopDirection"
-              @pointercancel="stopDirection"
-            >
-              ↓
-            </button>
-          </div>
+          <EcoNaveStageSelector
+            v-else-if="activePanel === 'stages'"
+            :stage-cards="stageCards"
+            :selected-stage-id="game.selectedStageId.value"
+            @select="game.selectStageCard"
+            @start="startSelectedStage"
+          />
 
-          <div class="action-pad">
-            <button
-              type="button"
-              class="control-btn primary"
-              @pointerdown.prevent="startFire"
-              @pointerup="stopFire"
-              @pointerleave="stopFire"
-              @pointercancel="stopFire"
-            >
-              Atirar
-            </button>
-            <button type="button" class="control-btn secondary" @click="game.triggerPulse">Pulso</button>
-          </div>
-        </div>
-
-        <div class="tips-row">
-          <span class="kids-chip info">Teclado: setas/WASD, espaco para disparar e E para pulso.</span>
+          <EcoNaveShipSelector
+            v-else
+            :ships="ships"
+            :selected-ship-id="game.progress.value.selectedShipId"
+            :unlocked-ship-ids="game.progress.value.unlockedShipIds"
+            :eco-credits="game.progress.value.ecoCredits"
+            @select="selectShip"
+          />
         </div>
       </section>
     </div>
+
+    <EcoNaveGameplayShell
+      v-else-if="game.runtimeState.value"
+      :runtime-state="game.runtimeState.value"
+      :selected-stage="game.selectedStage.value"
+      :selected-stage-id="game.selectedStageId.value"
+      :selected-ship="game.selectedShip.value"
+      :hud="game.hud.value"
+      :latest-feedback="game.latestFeedback.value"
+      :current-result="game.currentResult.value"
+      :quality="game.progress.value.settings.quality"
+      :is-running="game.isRunning.value"
+      :is-paused="game.isPaused.value"
+      :mission-sheet-open="missionSheetOpen"
+      :next-stage-id="nextStageId"
+      @pause="game.pauseStage"
+      @resume="game.resumeStage"
+      @exit="goToBriefing"
+      @restart="restartCurrentStage"
+      @next-stage="startNextStage"
+      @move="setDirection"
+      @stop-move="stopDirection"
+      @fire-start="startFire"
+      @fire-stop="stopFire"
+      @pulse="game.triggerPulse"
+      @toggle-mission-sheet="toggleMissionSheet"
+    />
 
     <Dialog v-model:visible="showSettings" modal header="Ajustes do EcoNave" :style="{ width: 'min(92vw, 520px)' }">
       <div class="settings-panel">
@@ -441,7 +299,9 @@ import Dialog from 'primevue/dialog'
 import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
 
-import EcoNaveStageCanvas from '@/components/econave/EcoNaveStageCanvas.vue'
+import EcoNaveGameplayShell from '@/components/econave/EcoNaveGameplayShell.vue'
+import EcoNaveShipSelector from '@/components/econave/EcoNaveShipSelector.vue'
+import EcoNaveStageSelector from '@/components/econave/EcoNaveStageSelector.vue'
 import { useEcoNaveGame } from '@/composables/econave/useEcoNaveGame'
 import { ECONAVE_SHIPS } from '@/engine/econave/data/ships'
 import { ECONAVE_STAGES } from '@/engine/econave/data/stages'
@@ -449,19 +309,29 @@ import { getNextEcoNaveStageId } from '@/engine/econave/runtime/simulation'
 import { playerProfileService } from '@/services/playerProfile.service'
 import type { EcoNaveRenderQuality, EcoNaveShipId } from '@/types/econave'
 
+type EcoNaveMenuPanel = 'overview' | 'stages' | 'ships'
+
 const router = useRouter()
 const toast = useToast()
 const game = useEcoNaveGame()
 
+const menuRootRef = ref<HTMLElement | null>(null)
+const panelBodyRef = ref<HTMLElement | null>(null)
 const showSettings = ref(false)
-const resultCardRef = ref<HTMLElement | null>(null)
-const shipsSectionRef = ref<HTMLElement | null>(null)
+const missionSheetOpen = ref(false)
+const activePanel = ref<EcoNaveMenuPanel>('overview')
 const pressedKeys = new Set<string>()
 
 const qualityOptions: Array<{ label: string; value: EcoNaveRenderQuality }> = [
   { label: 'Alta', value: 'high' },
   { label: 'Balanceada', value: 'balanced' },
   { label: 'Eco', value: 'eco' }
+]
+
+const menuTabs: Array<{ id: EcoNaveMenuPanel; label: string; icon: string }> = [
+  { id: 'overview', label: 'Visao geral', icon: '🌍' },
+  { id: 'stages', label: 'Fases', icon: '🪐' },
+  { id: 'ships', label: 'Naves', icon: '🛸' }
 ]
 
 const playerName = computed(() => playerProfileService.get()?.name ?? 'Explorador')
@@ -477,19 +347,51 @@ const nextStageId = computed(() =>
   game.currentResult.value?.victory ? getNextEcoNaveStageId(game.selectedStageId.value) : null,
 )
 
-function animateEntry() {
-  gsap.from('.econave-animate-in', {
-    y: 26,
-    opacity: 0,
-    duration: 0.6,
-    stagger: 0.08,
-    ease: 'power2.out'
-  })
+function animateMenuPanels() {
+  if (!menuRootRef.value) {
+    return
+  }
+
+  const nodes = menuRootRef.value.querySelectorAll<HTMLElement>('.econave-panel')
+  gsap.fromTo(
+    nodes,
+    { y: 26, opacity: 0 },
+    {
+      y: 0,
+      opacity: 1,
+      duration: 0.56,
+      stagger: 0.08,
+      ease: 'power2.out',
+      clearProps: 'transform,opacity'
+    }
+  )
+}
+
+function animateActivePanel() {
+  if (!panelBodyRef.value) {
+    return
+  }
+
+  gsap.fromTo(
+    panelBodyRef.value,
+    { y: 18, opacity: 0 },
+    {
+      y: 0,
+      opacity: 1,
+      duration: 0.36,
+      ease: 'power2.out',
+      clearProps: 'transform,opacity'
+    }
+  )
 }
 
 function syncMovementFromKeyboard() {
-  const moveX = (pressedKeys.has('arrowright') || pressedKeys.has('d') ? 1 : 0) - (pressedKeys.has('arrowleft') || pressedKeys.has('a') ? 1 : 0)
-  const moveY = (pressedKeys.has('arrowdown') || pressedKeys.has('s') ? 1 : 0) - (pressedKeys.has('arrowup') || pressedKeys.has('w') ? 1 : 0)
+  const moveX =
+    (pressedKeys.has('arrowright') || pressedKeys.has('d') ? 1 : 0) -
+    (pressedKeys.has('arrowleft') || pressedKeys.has('a') ? 1 : 0)
+  const moveY =
+    (pressedKeys.has('arrowdown') || pressedKeys.has('s') ? 1 : 0) -
+    (pressedKeys.has('arrowup') || pressedKeys.has('w') ? 1 : 0)
   game.setMovement(moveX, moveY)
   game.setFirePressed(pressedKeys.has(' '))
 }
@@ -507,9 +409,16 @@ function handleKeyDown(event: KeyboardEvent) {
     game.triggerPulse()
   }
 
-  if (key === 'escape' && game.isRunning.value) {
+  if (key === 'escape') {
     event.preventDefault()
-    game.pauseStage()
+    if (game.isRunning.value) {
+      game.pauseStage()
+      return
+    }
+
+    if (game.isPaused.value) {
+      game.resumeStage()
+    }
   }
 }
 
@@ -519,6 +428,11 @@ function handleKeyUp(event: KeyboardEvent) {
     pressedKeys.delete(key)
     syncMovementFromKeyboard()
   }
+}
+
+function applyScrollLock(locked: boolean) {
+  document.documentElement.style.overflow = locked ? 'hidden' : ''
+  document.body.style.overflow = locked ? 'hidden' : ''
 }
 
 function goHub() {
@@ -534,11 +448,16 @@ function startSelectedStage() {
       detail: 'Conclua a fase anterior para liberar esta missao orbital.',
       life: 2400
     })
+    activePanel.value = 'stages'
+    return
   }
+
+  missionSheetOpen.value = false
 }
 
 function restartCurrentStage() {
-  game.startStage(game.selectedStageId.value)
+  missionSheetOpen.value = false
+  game.restartStage()
 }
 
 function startNextStage() {
@@ -547,12 +466,14 @@ function startNextStage() {
   }
 
   game.selectStageCard(nextStageId.value)
+  missionSheetOpen.value = false
   game.startStage(nextStageId.value)
 }
 
 function goToBriefing() {
+  missionSheetOpen.value = false
   game.leaveStage()
-  animateEntry()
+  activePanel.value = 'overview'
 }
 
 function selectShip(shipId: EcoNaveShipId) {
@@ -568,6 +489,12 @@ function selectShip(shipId: EcoNaveShipId) {
   }
 
   game.selectShip(shipId)
+  toast.add({
+    severity: 'success',
+    summary: 'Nave equipada',
+    detail: `${game.selectedShip.value.name} pronta para a proxima patrulha orbital.`,
+    life: 1800
+  })
 }
 
 function setDirection(x: number, y: number) {
@@ -586,8 +513,8 @@ function stopFire() {
   game.setFirePressed(false)
 }
 
-function scrollToShips() {
-  shipsSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+function toggleMissionSheet() {
+  missionSheetOpen.value = !missionSheetOpen.value
 }
 
 function toggleMute() {
@@ -605,7 +532,7 @@ function updateRange(key: 'sfxVolume' | 'musicVolume', event: Event) {
 
 watch(
   () => game.currentResult.value,
-  async (result) => {
+  (result) => {
     if (!result) {
       return
     }
@@ -627,376 +554,356 @@ watch(
         life: 2800
       })
     }
-
-    await nextTick()
-    if (resultCardRef.value) {
-      gsap.fromTo(
-        resultCardRef.value,
-        { scale: 0.92, opacity: 0, y: 24 },
-        { scale: 1, opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.4)' }
-      )
-    }
   }
+)
+
+watch(
+  () => activePanel.value,
+  async () => {
+    await nextTick()
+    animateActivePanel()
+  }
+)
+
+watch(
+  () => showMenu.value,
+  async (menu) => {
+    applyScrollLock(!menu)
+
+    if (menu) {
+      await nextTick()
+      animateMenuPanels()
+      animateActivePanel()
+      return
+    }
+
+    missionSheetOpen.value = false
+  },
+  { immediate: true }
 )
 
 onMounted(() => {
   game.syncProgress()
-  animateEntry()
   window.addEventListener('keydown', handleKeyDown)
   window.addEventListener('keyup', handleKeyUp)
+  animateMenuPanels()
+  animateActivePanel()
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeyDown)
   window.removeEventListener('keyup', handleKeyUp)
+  applyScrollLock(false)
 })
 </script>
 
 <style scoped>
-.econave-shell {
-  display: grid;
-  gap: 24px;
+.econave-page {
+  overflow-x: clip;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(56, 189, 248, 0.18), transparent 24%),
+    radial-gradient(circle at 88% 16%, rgba(16, 185, 129, 0.16), transparent 18%),
+    linear-gradient(180deg, #03111f 0%, #07223f 26%, #eff8ff 26%, #fff7ed 100%);
 }
 
-.econave-hero,
-.stage-browser,
-.stage-briefing,
-.ships-panel,
-.runtime-shell {
-  padding: 24px;
+.econave-page.is-gameplay {
+  padding: 0;
+  background: transparent;
 }
 
-.econave-hero {
-  display: grid;
-  gap: 20px;
-}
-
-.hero-copy {
+.econave-command {
   display: grid;
   gap: 16px;
 }
 
-.hero-actions {
-  display: grid;
-  gap: 12px;
+.econave-panel {
+  overflow: hidden;
 }
 
-.hero-summary {
-  display: grid;
-  gap: 12px;
-}
-
-.summary-card {
+.econave-overview,
+.econave-nav-shell,
+.econave-content-shell {
   padding: 18px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.9);
-  display: grid;
-  gap: 6px;
 }
 
-.econave-grid {
+.econave-overview {
+  position: relative;
   display: grid;
   gap: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.22), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(239, 246, 255, 0.94) 100%);
 }
 
-.browser-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
+.econave-overview::after {
+  content: '';
+  position: absolute;
+  inset: auto -12% -24% auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.26), rgba(16, 185, 129, 0.16));
+  filter: blur(24px);
+  pointer-events: none;
+}
+
+.econave-overview__copy,
+.econave-overview__side {
+  position: relative;
+  z-index: 1;
+  display: grid;
   gap: 16px;
-  margin-bottom: 18px;
 }
 
-.stage-list,
-.ship-grid {
+.econave-overview__actions {
+  display: grid;
+  gap: 12px;
+}
+
+.econave-overview__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hero-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.hero-kpi {
+  padding: 16px;
+  border-radius: 22px;
+  display: grid;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.08);
+}
+
+.hero-kpi span {
+  color: var(--kids-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.hero-kpi strong {
+  font-size: 1.35rem;
+}
+
+.hero-spotlight {
+  position: relative;
+  overflow: hidden;
   display: grid;
   gap: 14px;
-}
-
-.stage-card,
-.ship-card {
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 24px;
-  background: var(--stage-gradient, rgba(255, 255, 255, 0.96));
-  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
   padding: 18px;
-  text-align: left;
-  display: grid;
-  gap: 12px;
+  border-radius: 26px;
+  background:
+    linear-gradient(180deg, rgba(4, 17, 31, 0.82) 0%, rgba(8, 18, 41, 0.94) 100%);
+  color: #f8fbff;
+  box-shadow: 0 22px 40px rgba(15, 23, 42, 0.16);
 }
 
-.stage-card.active,
-.ship-card.active {
-  outline: 3px solid color-mix(in srgb, var(--stage-accent, var(--ship-accent)) 56%, white);
+.hero-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: auto -12% -28% auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: var(--spotlight-gradient);
+  filter: blur(28px);
+  opacity: 0.46;
 }
 
-.stage-card.locked,
-.ship-card.locked {
-  opacity: 0.72;
-}
-
-.stage-card-top,
-.ship-header {
+.hero-spotlight__top,
+.hero-spotlight__meta,
+.overview-card__header,
+.overview-card__meta,
+.econave-nav-shell {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 12px;
-  align-items: center;
 }
 
-.stage-card strong,
-.ship-card strong {
+.hero-spotlight__top,
+.hero-spotlight__meta {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-spotlight__top small {
+  color: rgba(226, 232, 240, 0.76);
+}
+
+.hero-spotlight__top strong {
   display: block;
+  margin-top: 6px;
   font-size: 1.1rem;
 }
 
-.stage-card small,
-.stage-card p,
-.ship-card p,
-.ship-card small,
-.briefing-copy {
-  color: var(--kids-muted);
-  line-height: 1.5;
-  margin: 0;
-}
-
-.stage-card-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  font-weight: 800;
-  color: #27445e;
-}
-
-.stage-briefing {
-  display: grid;
-  gap: 16px;
-}
-
-.briefing-badge {
-  justify-self: start;
-  padding: 10px 16px;
-  border-radius: 999px;
-  color: white;
-  font-weight: 900;
-}
-
-.goal-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.goal-grid.compact {
-  gap: 10px;
-}
-
-.briefing-list {
-  margin: 0;
-  padding-left: 18px;
-  display: grid;
-  gap: 8px;
-  color: #4b5d71;
-}
-
-.stage-cta-row {
-  display: grid;
-  gap: 12px;
-}
-
-.ship-emoji {
-  width: 56px;
-  height: 56px;
-  border-radius: 20px;
-  display: grid;
-  place-items: center;
-  font-size: 2rem;
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.runtime-shell {
-  display: grid;
-  gap: 16px;
-}
-
-.runtime-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-  gap: 16px;
-}
-
-.runtime-title {
-  margin-bottom: 0;
-}
-
-.runtime-actions,
-.hud-strip,
-.mission-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.hud-pill,
-.mission-pill {
-  border-radius: 18px;
-  padding: 10px 14px;
-  font-weight: 900;
-  background: rgba(255, 255, 255, 0.88);
-}
-
-.hud-pill.accent {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.stage-frame {
+.hero-spotlight p {
   position: relative;
-  aspect-ratio: 9 / 16;
-  min-height: 480px;
-  border-radius: 34px;
-  overflow: hidden;
-  background: linear-gradient(180deg, #082f49 0%, #1d4ed8 100%);
-}
-
-.feedback-bubble,
-.boss-bar,
-.overlay-card {
-  position: absolute;
-  left: 14px;
-  right: 14px;
-}
-
-.feedback-bubble {
-  top: 16px;
-  padding: 12px 14px;
-  border-radius: 18px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
-}
-
-.feedback-bubble.positive {
-  border: 1px solid rgba(16, 185, 129, 0.25);
-}
-
-.feedback-bubble.warning {
-  border: 1px solid rgba(245, 158, 11, 0.28);
-}
-
-.feedback-bubble.negative {
-  border: 1px solid rgba(239, 68, 68, 0.28);
-}
-
-.feedback-bubble.mission {
-  border: 1px solid rgba(59, 130, 246, 0.28);
-}
-
-.boss-bar {
-  top: 84px;
-  display: grid;
-  gap: 8px;
-  color: white;
-  font-weight: 900;
-}
-
-.kids-progress-fill.boss {
-  background: linear-gradient(90deg, #f97316 0%, #ef4444 100%);
-}
-
-.overlay-card {
-  inset: auto 14px 14px 14px;
-  padding: 20px;
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.26);
-  display: grid;
-  gap: 14px;
-}
-
-.overlay-card.pause {
-  bottom: 14px;
-}
-
-.overlay-card.result {
-  max-height: calc(100% - 28px);
-  overflow: auto;
-}
-
-.overlay-card h3,
-.edu-card strong {
+  z-index: 1;
   margin: 0;
-}
-
-.overlay-card p,
-.edu-card p {
-  margin: 0;
-  color: var(--kids-muted);
+  color: rgba(226, 232, 240, 0.92);
   line-height: 1.55;
 }
 
-.overlay-actions {
+.hero-spotlight__meta {
+  margin-top: auto;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.88);
+  flex-wrap: wrap;
+}
+
+.econave-nav-shell {
+  position: sticky;
+  top: calc(10px + env(safe-area-inset-top));
+  z-index: 3;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+}
+
+.econave-nav-shell__tabs {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
-.edu-card {
-  padding: 16px 18px;
-  border-radius: 22px;
-  background: #eff6ff;
+.nav-tab {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(255, 255, 255, 0.78);
+  min-height: 58px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 14px;
+  font-weight: 900;
+  color: #163047;
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.nav-tab.active {
+  background: linear-gradient(135deg, #dbeafe 0%, #ecfeff 100%);
+  border-color: rgba(37, 99, 235, 0.18);
+  box-shadow: 0 16px 28px rgba(59, 130, 246, 0.12);
+}
+
+.nav-tab:hover,
+.nav-tab:focus-visible {
+  transform: translateY(-1px);
+}
+
+.nav-tab__icon {
+  font-size: 1rem;
+}
+
+.econave-nav-shell__actions {
   display: grid;
-  gap: 8px;
+  gap: 10px;
+  width: 100%;
 }
 
-.edu-card small {
-  color: #1d4ed8;
+.econave-content-shell {
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 26%),
+    linear-gradient(180deg, rgba(3, 17, 31, 0.94) 0%, rgba(7, 34, 63, 0.96) 100%);
+  color: #f8fbff;
+  box-shadow: 0 30px 60px rgba(2, 6, 23, 0.16);
 }
 
-.controls-shell {
+.econave-panel-body {
   display: grid;
   gap: 16px;
 }
 
-.move-pad,
-.action-pad {
+.overview-panel {
   display: grid;
+  gap: 16px;
+}
+
+.overview-panel__mission,
+.overview-card {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+}
+
+.overview-panel__heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.overview-panel__goal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.move-pad {
-  justify-items: center;
+.goal-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.move-row {
-  display: flex;
-  gap: 12px;
+.goal-card span,
+.overview-card small {
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 0.84rem;
 }
 
-.control-btn {
-  min-width: 88px;
-  min-height: 58px;
-  border: 0;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.1);
-  font-weight: 900;
-  color: #163047;
+.goal-card strong {
+  font-size: 1.15rem;
 }
 
-.control-btn.primary {
-  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
-  color: white;
+.overview-panel__list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 10px;
+  color: rgba(226, 232, 240, 0.92);
 }
 
-.control-btn.secondary {
-  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-  color: white;
+.overview-panel__side {
+  display: grid;
+  gap: 16px;
 }
 
-.tips-row {
-  display: flex;
+.overview-card strong,
+.overview-card p {
+  margin: 0;
+}
+
+.overview-card p {
+  color: rgba(226, 232, 240, 0.92);
+  line-height: 1.55;
+}
+
+.overview-card__header {
+  flex-wrap: wrap;
+}
+
+.overview-card__meta {
+  color: rgba(255, 255, 255, 0.84);
+  font-weight: 800;
   flex-wrap: wrap;
 }
 
@@ -1027,36 +934,68 @@ onBeforeUnmount(() => {
 }
 
 @media (min-width: 860px) {
-  .econave-hero {
-    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  .econave-overview {
+    grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
     align-items: center;
   }
 
-  .hero-summary {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .econave-overview__actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 420px;
   }
 
-  .econave-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.92fr);
+  .econave-nav-shell {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .econave-nav-shell__tabs {
+    flex: 1 1 auto;
+  }
+
+  .econave-nav-shell__actions {
+    width: auto;
+    grid-template-columns: repeat(2, auto);
+    justify-content: end;
+  }
+
+  .overview-panel {
+    grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
     align-items: start;
   }
+}
 
-  .stage-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (max-width: 759px) {
+  .hero-kpis {
+    grid-template-columns: 1fr;
   }
 
-  .ship-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .econave-nav-shell__tabs {
+    grid-template-columns: 1fr;
   }
 
-  .controls-shell {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+  .overview-panel__goal-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 599px) {
+  .econave-overview,
+  .econave-nav-shell,
+  .econave-content-shell {
+    padding: 16px;
   }
 
-  .stage-cta-row,
-  .overlay-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .overview-panel__goal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-spotlight__top,
+  .hero-spotlight__meta,
+  .overview-panel__heading,
+  .overview-card__header,
+  .overview-card__meta {
+    flex-direction: column;
   }
 }
 </style>
