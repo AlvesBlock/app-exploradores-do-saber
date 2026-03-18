@@ -13,6 +13,22 @@ export function getQuestionsByModule(moduleId: ModuleId): ModuleQuestion[] {
 }
 
 export function getQuestionById(questionId: string): ModuleQuestion | null {
-  return moduleQuestionBank.find((question) => question.id === questionId) ?? null
-}
+  const exactMatch = moduleQuestionBank.find((question) => question.id === questionId)
+  if (exactMatch) {
+    return exactMatch
+  }
 
+  const separatorIndex = questionId.indexOf('-')
+  if (separatorIndex === -1) {
+    return null
+  }
+
+  const modulePrefix = questionId.slice(0, separatorIndex)
+  const legacySuffix = questionId.slice(separatorIndex + 1)
+
+  return (
+    moduleQuestionBank.find((question) => {
+      return question.id.startsWith(`${modulePrefix}-`) && question.id.endsWith(`-${legacySuffix}`)
+    }) ?? null
+  )
+}

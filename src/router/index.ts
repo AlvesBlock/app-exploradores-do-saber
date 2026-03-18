@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import HubView from '@/views/HubView.vue'
 import MagicGalleryView from '@/views/MagicGalleryView.vue'
 import ModuleView from '@/views/ModuleView.vue'
+import EcoNaveView from '@/views/EcoNaveView.vue'
 import OnboardingView from '@/views/OnboardingView.vue'
 import PetView from '@/views/PetView.vue'
 import RunnerView from '@/views/RunnerView.vue'
@@ -51,6 +52,12 @@ const router = createRouter({
       path: '/runner',
       name: 'runner',
       component: RunnerView,
+      meta: { requiresProfile: true }
+    },
+    {
+      path: '/econave',
+      name: 'econave',
+      component: EcoNaveView,
       meta: { requiresProfile: true }
     }
   ]

@@ -1219,5 +1219,81 @@ export const moduleQuestionBank: ModuleQuestion[] = [
     successMessage: 'Muito bem! Quintal é um espaço da casa.',
     errorMessage: 'Procure a opção ligada à casa.',
     explanation: 'Conhecer significados amplia a leitura e a fala.'
+  }),
+  question({
+    moduleId: 'math',
+    day: 1,
+    suffix: 'd1-contagem-estrelas',
+    emoji: '⭐',
+    difficulty: 'warmup',
+    title: 'Estrelas no painel',
+    prompt: 'O painel mostra 5 estrelas e ganha mais 2. Quantas estrelas aparecem agora?',
+    tip: 'Some 5 + 2.',
+    options: [
+      { label: '6', value: 6, emoji: '☁️' },
+      { label: '7', value: 7, emoji: '🌟' },
+      { label: '8', value: 8, emoji: '🚀' }
+    ],
+    correctAnswer: 7,
+    successMessage: 'Boa! 5 mais 2 e igual a 7.',
+    errorMessage: 'Conte mais duas estrelas depois do 5.',
+    explanation: 'Somar pequenas quantidades ajuda a ganhar rapidez na contagem.'
+  }),
+  question({
+    moduleId: 'geography',
+    day: 1,
+    suffix: 'd1-caminho-casa',
+    emoji: '🏡',
+    difficulty: 'warmup',
+    title: 'Lugar de morar',
+    prompt: 'Qual lugar usamos para morar e descansar com a familia?',
+    tip: 'Pense no lugar onde voce dorme.',
+    options: [
+      { label: 'Casa', value: 'casa', emoji: '🏠' },
+      { label: 'Hospital', value: 'hospital', emoji: '🏥' },
+      { label: 'Praia', value: 'praia', emoji: '🏖️' }
+    ],
+    correctAnswer: 'casa',
+    successMessage: 'Isso! A casa e um lugar de moradia.',
+    errorMessage: 'Procure o lugar onde a familia mora.',
+    explanation: 'A geografia do dia a dia comeca pelos lugares que usamos com frequencia.'
+  }),
+  question({
+    moduleId: 'science',
+    day: 1,
+    suffix: 'd1-cuidado-agua',
+    emoji: '💧',
+    difficulty: 'warmup',
+    title: 'Usando agua',
+    prompt: 'Qual atitude ajuda a economizar agua em casa?',
+    tip: 'Pense em evitar desperdicio.',
+    options: [
+      { label: 'Fechar a torneira ao escovar os dentes', value: 'fechar', emoji: '✅' },
+      { label: 'Deixar a agua correr sem usar', value: 'desperdicio', emoji: '❌' },
+      { label: 'Molhar a calcada por muito tempo', value: 'calcada', emoji: '🌊' }
+    ],
+    correctAnswer: 'fechar',
+    successMessage: 'Muito bem! Fechar a torneira evita desperdicio.',
+    errorMessage: 'Pense em uma atitude que use so a agua necessaria.',
+    explanation: 'Cuidar da agua e uma atitude cientifica e responsavel.'
+  }),
+  question({
+    moduleId: 'language',
+    day: 1,
+    suffix: 'd1-rima-gato',
+    emoji: '🐱',
+    difficulty: 'warmup',
+    title: 'Palavra que rima',
+    prompt: 'Qual palavra rima com "gato"?',
+    tip: 'Ouça o final da palavra.',
+    options: [
+      { label: 'Pato', value: 'pato', emoji: '🦆' },
+      { label: 'Casa', value: 'casa', emoji: '🏠' },
+      { label: 'Livro', value: 'livro', emoji: '📚' }
+    ],
+    correctAnswer: 'pato',
+    successMessage: 'Boa! Gato e pato terminam com som parecido.',
+    errorMessage: 'Tente encontrar a palavra com o final mais parecido.',
+    explanation: 'Perceber rimas ajuda a notar os sons das palavras.'
   })
 ]

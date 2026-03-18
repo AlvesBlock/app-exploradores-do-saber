@@ -53,9 +53,12 @@ function selectQuestions(
   seedBase: string,
   day: number,
 ) {
-  const recentSet = new Set(progress.recentQuestionIds)
-  const reviewSet = new Set(progress.reviewQuestionIds)
-  const masteredSet = new Set(progress.masteredQuestionIds)
+  const normalizeIds = (questionIds: string[]) =>
+    questionIds.map((questionId) => getQuestionById(questionId)?.id ?? questionId)
+
+  const recentSet = new Set(normalizeIds(progress.recentQuestionIds))
+  const reviewSet = new Set(normalizeIds(progress.reviewQuestionIds))
+  const masteredSet = new Set(normalizeIds(progress.masteredQuestionIds))
 
   const currentDayQuestions = shuffleWithSeed(
     questions.filter((question) => question.day === day),
@@ -121,6 +124,17 @@ export const moduleQuizService = {
       sessionSeed,
       day,
     )
+    const reviewAliases = progress.reviewQuestionIds.map((questionId) => ({
+      raw: questionId,
+      canonical: getQuestionById(questionId)?.id ?? questionId
+    }))
+
+    reviewAliases.forEach((alias) => {
+      const currentIndex = questionIds.indexOf(alias.canonical)
+      if (currentIndex >= 0) {
+        questionIds[currentIndex] = alias.raw
+      }
+    })
 
     return {
       sessionId: `${sessionSeed}:${questionIds.join('-')}`,

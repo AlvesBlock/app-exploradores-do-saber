@@ -76,16 +76,23 @@
                 <span>{{ Math.round(module.progressPercent) }}%</span>
               </div>
               <div class="kids-progress-bar">
-                <div class="kids-progress-fill" :style="{ width: `${module.progressPercent}%` }"></div>
+                <div
+                  class="kids-progress-fill"
+                  :style="{ width: `${module.progressPercent}%` }"
+                ></div>
               </div>
 
               <div class="meta-stats">
-                <div class="kids-stat-pill"><span>⭐</span><span>{{ module.earnedStars }}</span></div>
+                <div class="kids-stat-pill">
+                  <span>⭐</span><span>{{ module.earnedStars }}</span>
+                </div>
                 <div class="kids-stat-pill">
                   <span>🎯</span>
                   <span>{{ Math.round(module.bestAccuracy * 100) }}%</span>
                 </div>
-                <div class="kids-stat-pill"><span>🔥</span><span>{{ module.currentStreak }}</span></div>
+                <div class="kids-stat-pill">
+                  <span>🔥</span><span>{{ module.currentStreak }}</span>
+                </div>
               </div>
             </div>
 
@@ -115,7 +122,7 @@
       <section class="hub-section premium-section">
         <div class="section-heading">
           <div>
-            <div class="kids-eyebrow">âœ¨ Espaco Plus</div>
+            <div class="kids-eyebrow">Espaço Plus</div>
             <h2 class="kids-section-title">Recompensa premium do Hub</h2>
           </div>
           <p class="kids-section-copy">
@@ -149,6 +156,19 @@
             <span>🏎️</span>
             <strong>Modo Arcade</strong>
             <small>Entre no runner a qualquer momento.</small>
+          </button>
+          <button
+            type="button"
+            class="action-card econave"
+            data-test="hub-econave-card"
+            @click="openEcoNave"
+          >
+            <span>🛸</span>
+            <strong>EcoNave</strong>
+            <small>
+              Fase {{ econaveSummary.highestUnlockedStage }}/5 · {{ econaveSummary.stageTitle }} ·
+              {{ econaveSummary.ecoCredits }} eco-creditos
+            </small>
           </button>
           <button type="button" class="action-card" @click="changeProfile">
             <span>🧑‍🎨</span>
@@ -187,8 +207,10 @@ import MagicGalleryHubCard from '@/components/magic-gallery/MagicGalleryHubCard.
 import MagicGalleryUnlockOverlay from '@/components/magic-gallery/MagicGalleryUnlockOverlay.vue'
 import { getAvatarMeta } from '@/data/avatars/avatarOptions.data'
 import { gameModules } from '@/data/modules/modules.data'
+import { ECONAVE_STAGES } from '@/engine/econave/data/stages'
 import { audioService } from '@/services/audio.service'
 import { celebrationService } from '@/services/celebration.service'
+import { econaveProgressService } from '@/services/econaveProgress.service'
 import { magicGalleryContentService } from '@/services/magicGalleryContent.service'
 import { magicGalleryProgressService } from '@/services/magicGalleryProgress.service'
 import { moduleProgressService } from '@/services/moduleProgress.service'
@@ -205,11 +227,23 @@ const profile = ref<PlayerProfile | null>(null)
 const progressList = ref<ModuleProgress[]>([])
 const magicGalleryStatus = ref<MagicGalleryUnlockStatus | null>(null)
 const magicGalleryProgress = ref<MagicGalleryProgress>(magicGalleryProgressService.get())
-const magicGalleryTotalCharacters = ref(magicGalleryContentService.getFallbackSnapshot().characters.length)
+const magicGalleryTotalCharacters = ref(
+  magicGalleryContentService.getFallbackSnapshot().characters.length,
+)
 const showMagicGalleryUnlockOverlay = ref(false)
+const econaveProgress = ref(econaveProgressService.get())
 
 const avatarMeta = computed(() => getAvatarMeta(profile.value?.avatar))
 const overview = computed(() => moduleProgressService.getOverview())
+const econaveSummary = computed(() => {
+  const currentStage = ECONAVE_STAGES[Math.max(0, econaveProgress.value.highestUnlockedStage - 1)]
+
+  return {
+    highestUnlockedStage: econaveProgress.value.highestUnlockedStage,
+    ecoCredits: econaveProgress.value.ecoCredits,
+    stageTitle: currentStage?.title ?? 'Orbita da Terra',
+  }
+})
 
 const modulesWithProgress = computed(() => {
   return gameModules.map((module) => {
@@ -217,7 +251,9 @@ const modulesWithProgress = computed(() => {
     const completedDays = progress?.completedDays ?? 0
     const progressPercent = (completedDays / module.totalDays) * 100
     const isCompleted = !!progress?.completedAt
-    const displayDay = isCompleted ? module.totalDays : Math.min(completedDays + 1, module.totalDays)
+    const displayDay = isCompleted
+      ? module.totalDays
+      : Math.min(completedDays + 1, module.totalDays)
 
     return {
       ...module,
@@ -230,7 +266,7 @@ const modulesWithProgress = computed(() => {
       displayDay,
       isCompleted,
       statusLabel: isCompleted ? 'Concluido' : progress?.unlocked ? 'Em andamento' : 'Bloqueado',
-      actionLabel: isCompleted ? 'Revisar modulo' : `Comecar dia ${displayDay}`
+      actionLabel: isCompleted ? 'Revisar modulo' : `Comecar dia ${displayDay}`,
     }
   })
 })
@@ -246,6 +282,7 @@ function loadData() {
   playerProfileService.touchLastActive()
   profile.value = playerProfileService.get()
   progressList.value = moduleProgressService.getAll()
+  econaveProgress.value = econaveProgressService.get()
   syncMagicGalleryState()
 }
 
@@ -259,6 +296,10 @@ function openModule(moduleId: ModuleId) {
 
 function openRunner() {
   router.push('/runner')
+}
+
+function openEcoNave() {
+  router.push('/econave')
 }
 
 function openPet() {
@@ -293,7 +334,7 @@ function openMagicGallery() {
       severity: 'warn',
       summary: 'Portal bloqueado',
       detail: 'Conclua todos os mundos para liberar a Galeria Encantada.',
-      life: 2400
+      life: 2400,
     })
     return
   }
@@ -313,7 +354,7 @@ function resetProgress() {
   if (currentProfile) {
     playerProfileService.save({
       ...currentProfile,
-      stars: 0
+      stars: 0,
     })
   }
 
@@ -325,7 +366,7 @@ function resetProgress() {
     severity: 'success',
     summary: 'Jornada reiniciada',
     detail: 'Os modulos, o premium e o pet voltaram ao inicio.',
-    life: 2600
+    life: 2600,
   })
 }
 
@@ -506,6 +547,11 @@ onMounted(() => {
 
 .action-card.danger {
   background: #fff7f7;
+}
+
+.action-card.econave {
+  background: linear-gradient(135deg, #e0f2fe 0%, #eff6ff 44%, #ecfeff 100%);
+  border-color: rgba(56, 189, 248, 0.28);
 }
 
 @media (min-width: 860px) {
