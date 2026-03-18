@@ -49,8 +49,8 @@
             <div class="kids-chip warning">{{ currentMissionLabel }}</div>
             <h2>Missao do dia</h2>
             <p>
-              Responda {{ moduleData.sessionQuestionCount }} perguntas curtas com apoio visual.
-              Para subir de dia, acerte pelo menos 3 respostas.
+              Responda {{ moduleData.sessionQuestionCount }} perguntas curtas com apoio visual. Para
+              subir de dia, acerte pelo menos 3 respostas.
             </p>
 
             <ul>
@@ -77,19 +77,23 @@
         </div>
 
         <div class="state-actions">
-          <Button label="Voltar ao hub" icon="pi pi-arrow-left" severity="secondary" outlined @click="goHub" />
           <Button
-            :label="resumeLabel"
-            icon="pi pi-play"
-            @click="startSession"
+            label="Voltar ao hub"
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            outlined
+            @click="goHub"
           />
+          <Button :label="resumeLabel" icon="pi pi-play" @click="startSession" />
         </div>
       </section>
 
       <section v-else-if="screenState === 'question' && displayedQuestion" class="question-shell">
         <article class="kids-card question-card">
           <div class="question-meta">
-            <span class="kids-chip info">Pergunta {{ displayedQuestionNumber }}/{{ totalQuestions }}</span>
+            <span class="kids-chip info"
+              >Pergunta {{ displayedQuestionNumber }}/{{ totalQuestions }}</span
+            >
             <span class="kids-chip neutral">{{ displayedQuestion.difficulty }}</span>
           </div>
 
@@ -111,14 +115,26 @@
             />
           </div>
 
-          <div v-if="lastResult" class="feedback-panel" :class="lastResult.isCorrect ? 'positive' : 'negative'">
+          <div
+            v-if="lastResult"
+            class="feedback-panel"
+            :class="lastResult.isCorrect ? 'positive' : 'negative'"
+          >
             <strong>{{ lastResult.message }}</strong>
             <p>{{ lastResult.explanation }}</p>
-            <small v-if="lastResult.isCorrect">+{{ lastResult.starsEarned }} estrela(s) nesta resposta</small>
+            <small v-if="lastResult.isCorrect"
+              >+{{ lastResult.starsEarned }} estrela(s) nesta resposta</small
+            >
           </div>
 
           <div class="state-actions">
-            <Button label="Voltar ao hub" icon="pi pi-home" severity="secondary" outlined @click="goHub" />
+            <Button
+              label="Voltar ao hub"
+              icon="pi pi-home"
+              severity="secondary"
+              outlined
+              @click="goHub"
+            />
             <Button
               :label="questionResolved ? continueLabel : 'Responder'"
               icon="pi pi-check"
@@ -129,7 +145,10 @@
         </article>
       </section>
 
-      <section v-else-if="screenState === 'summary' && sessionSummary" class="kids-card state-card summary-card">
+      <section
+        v-else-if="screenState === 'summary' && sessionSummary"
+        class="kids-card state-card summary-card"
+      >
         <div class="state-icon">🌟</div>
         <h2>{{ sessionSummary.advancedDay ? 'Dia concluido!' : 'Vamos tentar mais uma vez!' }}</h2>
         <p>
@@ -139,14 +158,28 @@
         </p>
 
         <div class="summary-metrics">
-          <div class="kids-stat-pill"><span>🎯</span><span>{{ Math.round(sessionSummary.accuracy * 100) }}%</span></div>
-          <div class="kids-stat-pill"><span>📅</span><span>Proximo dia: {{ sessionSummary.nextDay }}</span></div>
+          <div class="kids-stat-pill">
+            <span>🎯</span><span>{{ Math.round(sessionSummary.accuracy * 100) }}%</span>
+          </div>
+          <div class="kids-stat-pill">
+            <span>📅</span><span>Proximo dia: {{ sessionSummary.nextDay }}</span>
+          </div>
         </div>
 
         <div class="state-actions">
-          <Button label="Voltar ao hub" icon="pi pi-home" severity="secondary" outlined @click="goHub" />
           <Button
-            :label="sessionSummary.advancedDay ? `Ir para o dia ${sessionSummary.nextDay}` : 'Repetir este dia'"
+            label="Voltar ao hub"
+            icon="pi pi-home"
+            severity="secondary"
+            outlined
+            @click="goHub"
+          />
+          <Button
+            :label="
+              sessionSummary.advancedDay
+                ? `Ir para o dia ${sessionSummary.nextDay}`
+                : 'Repetir este dia'
+            "
             icon="pi pi-play"
             @click="prepareNextStep"
           />
@@ -165,13 +198,25 @@
         </p>
 
         <div class="summary-metrics">
-          <div class="kids-stat-pill"><span>⭐</span><span>{{ moduleProgress.earnedStars }} estrelas</span></div>
-          <div class="kids-stat-pill"><span>🎯</span><span>{{ Math.round(moduleProgress.bestAccuracy * 100) }}%</span></div>
-          <div class="kids-stat-pill"><span>🔥</span><span>{{ moduleProgress.currentStreak }}</span></div>
+          <div class="kids-stat-pill">
+            <span>⭐</span><span>{{ moduleProgress.earnedStars }} estrelas</span>
+          </div>
+          <div class="kids-stat-pill">
+            <span>🎯</span><span>{{ Math.round(moduleProgress.bestAccuracy * 100) }}%</span>
+          </div>
+          <div class="kids-stat-pill">
+            <span>🔥</span><span>{{ moduleProgress.currentStreak }}</span>
+          </div>
         </div>
 
         <div class="state-actions">
-          <Button label="Voltar ao hub" icon="pi pi-home" severity="secondary" outlined @click="goHub" />
+          <Button
+            label="Voltar ao hub"
+            icon="pi pi-home"
+            severity="secondary"
+            outlined
+            @click="goHub"
+          />
           <Button label="Sessao de revisao" icon="pi pi-refresh" @click="startSession" />
         </div>
       </section>
@@ -227,7 +272,9 @@ const activeQuestion = computed(() => {
   const questionId = activeSession.value.questionIds[currentQuestionIndex.value]
   return questionId ? moduleQuizService.getQuestion(questionId) : null
 })
-const displayedQuestion = computed(() => (questionResolved.value ? resolvedQuestion.value : activeQuestion.value))
+const displayedQuestion = computed(() =>
+  questionResolved.value ? resolvedQuestion.value : activeQuestion.value,
+)
 
 const displayDay = computed(() => {
   if (!moduleData.value || !moduleProgress.value) return 1
@@ -240,12 +287,18 @@ const moduleProgressPercent = computed(() => {
   return (moduleProgress.value.completedDays / moduleData.value.totalDays) * 100
 })
 
-const currentMissionLabel = computed(() => `Dia ${displayDay.value} de ${moduleData.value?.totalDays ?? 5}`)
-const resumeLabel = computed(() => (moduleProgress.value?.activeSession ? 'Continuar sessao' : `Comecar dia ${displayDay.value}`))
+const currentMissionLabel = computed(
+  () => `Dia ${displayDay.value} de ${moduleData.value?.totalDays ?? 5}`,
+)
+const resumeLabel = computed(() =>
+  moduleProgress.value?.activeSession ? 'Continuar sessao' : `Comecar dia ${displayDay.value}`,
+)
 const continueLabel = computed(() => {
   const session = activeSession.value
   if (!session) return 'Continuar'
-  return session.answers.length >= session.questionIds.length ? 'Ver resultado da sessao' : 'Proxima pergunta'
+  return session.answers.length >= session.questionIds.length
+    ? 'Ver resultado da sessao'
+    : 'Proxima pergunta'
 })
 
 function syncProgress() {
@@ -306,7 +359,7 @@ function startSession() {
       severity: 'warn',
       summary: 'Modulo bloqueado',
       detail: 'Complete a etapa anterior para liberar esta jornada.',
-      life: 2400
+      life: 2400,
     })
     resolveScreenState()
     return
@@ -374,7 +427,7 @@ function finishSession() {
         severity: 'success',
         summary: 'Portal Plus liberado!',
         detail: 'Volte ao hub para entrar na Galeria Encantada.',
-        life: 2800
+        life: 2800,
       })
     }
 
@@ -388,7 +441,7 @@ function finishSession() {
     detail: summary.advancedDay
       ? `Voce liberou o dia ${summary.nextDay}.`
       : 'Treine mais um pouco para subir de dia.',
-    life: 2400
+    life: 2400,
   })
 
   screenState.value = 'summary'
@@ -495,6 +548,7 @@ onMounted(() => {
 .question-card h2 {
   margin: 0;
   font-size: clamp(1.5rem, 3vw, 2.1rem);
+  color: #1f2937;
 }
 
 .state-card p,
@@ -517,6 +571,17 @@ onMounted(() => {
 .feedback-panel {
   display: grid;
   gap: 10px;
+}
+
+.question-body,
+.question-body h2,
+.question-prompt,
+.question-tip,
+.feedback-panel,
+.feedback-panel strong,
+.feedback-panel p,
+.feedback-panel small {
+  color: #1f2937;
 }
 
 .intro-copy ul {
