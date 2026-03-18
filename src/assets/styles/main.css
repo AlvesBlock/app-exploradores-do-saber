@@ -78,11 +78,8 @@ button,
 
 .kids-page {
   min-height: 100dvh;
-  padding:
-    max(16px, env(safe-area-inset-top))
-    max(14px, env(safe-area-inset-right))
-    max(22px, env(safe-area-inset-bottom))
-    max(14px, env(safe-area-inset-left));
+  padding: max(16px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+    max(22px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
   position: relative;
 }
 
@@ -264,3 +261,122 @@ label {
   }
 }
 
+/* =========================================================
+   GLOBAL TOAST FIX - MOBILE FIRST
+   PrimeVue Toast responsive behavior
+   ========================================================= */
+
+:root {
+  --app-toast-gap: 0.75rem;
+  --app-toast-mobile-inline: 0.75rem;
+  --app-toast-max-width: 26rem;
+}
+
+/* Container do toast */
+.p-toast {
+  width: auto !important;
+  max-width: min(
+    var(--app-toast-max-width),
+    calc(100vw - (var(--app-toast-mobile-inline) * 2))
+  ) !important;
+}
+
+/* Posicionamentos laterais/top/bottom */
+.p-toast.p-toast-top-right,
+.p-toast.p-toast-top-left,
+.p-toast.p-toast-top-center,
+.p-toast.p-toast-bottom-right,
+.p-toast.p-toast-bottom-left,
+.p-toast.p-toast-bottom-center,
+.p-toast.p-toast-center {
+  left: var(--app-toast-mobile-inline) !important;
+  right: var(--app-toast-mobile-inline) !important;
+  width: auto !important;
+  max-width: calc(100vw - (var(--app-toast-mobile-inline) * 2)) !important;
+}
+
+/* Em mobile, tirar dependência de largura fixa */
+@media (max-width: 640px) {
+  .p-toast {
+    inset-inline: var(--app-toast-mobile-inline) !important;
+    width: auto !important;
+    max-width: calc(100vw - (var(--app-toast-mobile-inline) * 2)) !important;
+  }
+}
+
+/* Caixa individual */
+.p-toast .p-toast-message {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+/* Conteúdo interno */
+.p-toast .p-toast-message-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0; /* ESSENCIAL para permitir shrink do texto */
+  box-sizing: border-box;
+  padding: 0.875rem 1rem;
+}
+
+/* Área central que contém summary/detail */
+.p-toast .p-toast-message-text {
+  flex: 1 1 auto;
+  min-width: 0; /* ESSENCIAL */
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Título */
+.p-toast .p-toast-summary {
+  display: block;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.25;
+}
+
+/* Descrição */
+.p-toast .p-toast-detail {
+  display: block;
+  margin-top: 0.25rem;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+/* Ícone não deve deformar layout */
+.p-toast .p-toast-message-icon,
+.p-toast .p-toast-icon-close,
+.p-toast .p-toast-close-button {
+  flex: 0 0 auto;
+}
+
+/* Botão fechar */
+.p-toast .p-toast-close-button {
+  align-self: flex-start;
+  margin-left: 0.5rem;
+}
+
+/* Segurança extra para qualquer elemento interno */
+.p-toast .p-toast-message-content > * {
+  min-width: 0;
+}
+
+/* Caso existam links ou strings grandes sem espaço */
+.p-toast a,
+.p-toast span,
+.p-toast div {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
